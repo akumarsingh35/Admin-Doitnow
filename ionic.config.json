@@ -1,0 +1,7 @@
+{
+  "name": "admin-doitnow",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

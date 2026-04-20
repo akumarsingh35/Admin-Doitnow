@@ -1,0 +1,112 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="back()">Back</ion-button>
+    </ion-buttons>
+    <ion-title>Approve booking</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="step === 'select_partner'">
+    <div class="section ion-padding">
+      <div class="kicker">Booking</div>
+      <div class="booking-row">
+        <div class="id">#{{ booking.id }}</div>
+        <ion-badge color="warning" *ngIf="booking.status === 'PENDING'">Pending</ion-badge>
+      </div>
+      <div class="muted">{{ booking.user?.fullName || 'Customer' }} • {{ bookingCustomerPhone() }}</div>
+      <div class="muted address">{{ bookingAddressText() }}</div>
+    </div>
+
+    <div class="section ion-padding">
+      <div class="kicker">Select partner</div>
+      <ion-searchbar
+        placeholder="Search partner (name, id, phone, services)"
+        inputmode="search"
+        [debounce]="0"
+        (ionInput)="onSearchChange($any($event.detail.value))"
+      ></ion-searchbar>
+    </div>
+
+    <ion-list lines="full">
+      <ion-item button *ngFor="let partner of partners; trackBy: trackByPartnerId" (click)="selectPartner(partner)">
+        <ion-label class="ion-text-wrap">
+          <div class="partner-row">
+            <div class="name">{{ partner.name || 'Partner' }}</div>
+            <div class="muted">#{{ partner.id }}</div>
+          </div>
+          <div class="muted">{{ partner.phone || '—' }}</div>
+          <div class="chips" *ngIf="partner.services?.length">
+            <ion-chip *ngFor="let s of partner.services | slice:0:4">
+              <ion-label>{{ s }}</ion-label>
+            </ion-chip>
+            <ion-text color="medium" *ngIf="(partner.services?.length || 0) > 4">+{{ (partner.services?.length || 0) - 4 }}</ion-text>
+          </div>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <div class="state ion-padding" *ngIf="!isLoadingPartners && partners.length === 0">
+      <ion-text color="medium">No partners found.</ion-text>
+    </div>
+
+    <ion-infinite-scroll [disabled]="!partnersHasMore" threshold="150px" (ionInfinite)="loadMorePartners($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading partners...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </ng-container>
+
+  <ng-container *ngIf="step === 'confirm'">
+    <div class="section ion-padding">
+      <div class="kicker">Confirm approval</div>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Partner</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="pair">
+            <div class="label">Name</div>
+            <div class="value">{{ selectedPartner?.name || '—' }}</div>
+          </div>
+          <div class="pair">
+            <div class="label">Phone</div>
+            <div class="value">{{ selectedPartner?.phone || '—' }}</div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Customer</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="pair">
+            <div class="label">Phone</div>
+            <div class="value">{{ bookingCustomerPhone() }}</div>
+          </div>
+          <div class="pair">
+            <div class="label">Address</div>
+            <div class="value">{{ bookingAddressText() }}</div>
+          </div>
+          <div class="pair" *ngIf="booking.price !== null && booking.price !== undefined">
+            <div class="label">Price</div>
+            <div class="value">₹{{ booking.price }}</div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <div class="cta">
+        <ion-button expand="block" color="primary" [disabled]="isSubmitting" (click)="approve()">
+          <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+          <span *ngIf="!isSubmitting">Confirm approval</span>
+        </ion-button>
+      </div>
+    </div>
+  </ng-container>
+</ion-content>
+

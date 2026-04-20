@@ -1,0 +1,102 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openSettings()">
+        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Filters -->
+  <div class="filters ion-padding">
+    <ion-segment [(ngModel)]="status" (ionChange)="onStatusChange($any($event.detail.value))">
+      <ion-segment-button *ngFor="let opt of statusOptions" [value]="opt.value">
+        <ion-label>{{ opt.label }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="ion-padding ion-text-center">
+    <ion-spinner></ion-spinner>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && bookings.length === 0" class="ion-padding ion-text-center">
+    <p>No bookings found</p>
+  </div>
+
+  <!-- Bookings List -->
+  <ion-list *ngIf="!isLoading && bookings.length > 0" lines="full">
+    <ion-item *ngFor="let booking of bookings; trackBy: trackByBookingId" class="booking-item compact">
+      <div class="booking-row">
+        <!-- Left Content -->
+        <div class="booking-content">
+          <div class="service-header">
+            <h3 class="service-title">{{ booking.service?.title || 'Service' }}</h3>
+            <ion-badge [color]="getStatusColor(booking.status)" class="status-badge">
+              {{ booking.status }}
+            </ion-badge>
+          </div>
+          <div class="booking-info">
+            <span class="info-item">{{ booking.user?.fullName || 'N/A' }}</span>
+            <span class="info-item">{{ booking.address?.phone || 'N/A' }}</span>
+            <span class="info-item">{{ booking.address?.fullAddress || 'N/A' }}</span>
+            <span class="info-item">{{ booking.date || 'N/A' }} | {{ booking.timeSlot || 'N/A' }}</span>
+            <span class="info-item price">₹{{ booking.price || 0 }}</span>
+          </div>
+        </div>
+
+        <!-- Right Content - Actions -->
+        <div class="booking-right" *ngIf="booking.status === 'PENDING'">
+          <div class="booking-actions">
+            <ion-button
+              size="small"
+              fill="outline"
+              color="danger"
+              [disabled]="isLoading"
+              (click)="openCancel(booking)"
+            >
+              Reject
+            </ion-button>
+            <ion-button
+              size="small"
+              color="primary"
+              [disabled]="isLoading"
+              (click)="openApprove(booking)"
+            >
+              Approve
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </ion-item>
+  </ion-list>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && bookings.length > 0" class="pagination ion-padding">
+    <ion-button
+      fill="clear"
+      [disabled]="currentPage <= 1 || isLoading"
+      (click)="previousPage()"
+    >
+      Previous
+    </ion-button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <ion-button
+      fill="clear"
+      [disabled]="currentPage >= totalPages || isLoading"
+      (click)="nextPage()"
+    >
+      Next
+    </ion-button>
+  </div>
+</ion-content>

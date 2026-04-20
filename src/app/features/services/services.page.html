@@ -1,0 +1,161 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Services</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [disabled]="loading || isSubmitting" (click)="openAddModal()">
+        Add Service
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="loading" class="ion-padding ion-text-center">
+    <ion-spinner></ion-spinner>
+    <p>Loading...</p>
+  </div>
+
+  <div *ngIf="!loading && services.length === 0" class="ion-padding ion-text-center">
+    <p>No services available</p>
+  </div>
+
+  <ion-grid *ngIf="!loading && services.length > 0">
+    <ion-row>
+      <ion-col size="12" size-md="6" size-lg="4" *ngFor="let service of services">
+        <ion-card class="service-card">
+          <div class="media" [ngClass]="service.colorClass || ''">
+            <img
+              *ngIf="service.displayType === 'IMAGE' && service.imageUrl"
+              [src]="service.imageUrl"
+              [alt]="service.title"
+            />
+            <img
+              *ngIf="service.displayType === 'ICON' && service.iconUrl"
+              [src]="service.iconUrl"
+              [alt]="service.title"
+              class="icon"
+            />
+          </div>
+
+          <ion-card-header>
+            <div class="header-row">
+              <ion-card-title>{{ service.title }}</ion-card-title>
+              <ion-badge color="warning" *ngIf="service.isPopular">Popular</ion-badge>
+            </div>
+            <ion-card-subtitle *ngIf="service.subtitle">{{ service.subtitle }}</ion-card-subtitle>
+          </ion-card-header>
+
+          <ion-card-content>
+            <div class="price-row">
+              <div class="price">{{ service.currency }} {{ service.startingPrice }}</div>
+              <ion-badge color="medium" *ngIf="service.tag">{{ service.tag }}</ion-badge>
+            </div>
+            <div class="desc" *ngIf="service.description">{{ service.description }}</div>
+
+            <div class="actions">
+              <ion-button size="small" fill="outline" [disabled]="isSubmitting" (click)="openEditModal(service)">
+                Edit
+              </ion-button>
+              <ion-button size="small" color="danger" fill="outline" [disabled]="isSubmitting" (click)="confirmDelete(service)">
+                Delete
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button [disabled]="loading || isSubmitting" (click)="openAddModal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>{{ isEditMode ? 'Edit Service' : 'Add Service' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button [disabled]="isSubmitting" (click)="closeModal()">Close</ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <ion-item>
+            <ion-input label="Title" labelPlacement="stacked" formControlName="title"></ion-input>
+          </ion-item>
+          <ion-text color="danger" class="error" *ngIf="form.get('title')?.touched && form.get('title')?.invalid">
+            Title is required
+          </ion-text>
+
+          <ion-item>
+            <ion-input label="Subtitle" labelPlacement="stacked" formControlName="subtitle"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-textarea label="Description" labelPlacement="stacked" formControlName="description"></ion-textarea>
+          </ion-item>
+
+          <ion-item>
+            <ion-input
+              type="number"
+              label="Starting Price"
+              labelPlacement="stacked"
+              formControlName="startingPrice"
+            ></ion-input>
+          </ion-item>
+          <ion-text
+            color="danger"
+            class="error"
+            *ngIf="form.get('startingPrice')?.touched && form.get('startingPrice')?.invalid"
+          >
+            Starting price is required
+          </ion-text>
+
+          <ion-item>
+            <ion-input label="Currency" labelPlacement="stacked" formControlName="currency" readonly="true"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-select label="Display Type" labelPlacement="stacked" formControlName="displayType">
+              <ion-select-option *ngFor="let opt of displayTypeOptions" [value]="opt.value">
+                {{ opt.label }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-input label="Image URL" labelPlacement="stacked" formControlName="imageUrl"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input label="Icon URL" labelPlacement="stacked" formControlName="iconUrl"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input label="Color Class" labelPlacement="stacked" formControlName="colorClass"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-input label="Tag" labelPlacement="stacked" formControlName="tag"></ion-input>
+          </ion-item>
+
+          <ion-item lines="none">
+            <ion-toggle formControlName="isPopular">Popular</ion-toggle>
+          </ion-item>
+
+          <div class="submit-row">
+            <ion-button type="submit" expand="block" [disabled]="isSubmitting">
+              <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+              <span *ngIf="!isSubmitting">{{ isEditMode ? 'Update' : 'Create' }}</span>
+            </ion-button>
+          </div>
+        </form>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+</ion-content>

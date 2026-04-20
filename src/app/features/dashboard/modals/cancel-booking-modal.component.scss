@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+.section {
+  padding-bottom: 8px;
+}
+
+.kicker {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.booking-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.id {
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--ion-color-medium);
+}
+
+.address {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.cta {
+  margin-top: 14px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.label {
+  color: var(--ion-color-medium);
+  font-size: 12px;
+}
+
+.value {
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.reason {
+  white-space: pre-wrap;
+}
+
+ion-spinner {
+  margin-right: 10px;
+}
+

@@ -1,0 +1,24 @@
+:host {
+  --ion-background-color: var(--ion-color-light);
+}
+
+.logout-section {
+  margin-top: 20px;
+  border-top: 1px solid var(--ion-color-light-shade);
+}
+
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 56px;
+
+  ion-icon[slot='start'] {
+    font-size: 24px;
+    margin-right: 16px;
+  }
+
+  ion-icon[slot='end'] {
+    font-size: 20px;
+    color: var(--ion-color-medium);
+  }
+}

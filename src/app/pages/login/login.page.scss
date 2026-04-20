@@ -1,0 +1,37 @@
+.login-content {
+  --background: var(--ion-background-color);
+}
+
+.login-container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  max-width: 26rem;
+  margin: 0 auto;
+}
+
+.brand-block {
+  text-align: center;
+}
+
+.brand-icon {
+  font-size: 3rem;
+  color: var(--ion-color-primary);
+}
+
+.brand-block h1 {
+  margin: 0.75rem 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+.brand-block p {
+  margin: 0;
+  color: var(--ion-color-medium);
+}
+
+.error-text {
+  margin: 0;
+  text-align: center;
+}

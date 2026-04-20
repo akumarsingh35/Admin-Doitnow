@@ -1,0 +1,15 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()" [disabled]="loggingOut">
+        <ion-spinner slot="start" *ngIf="loggingOut"></ion-spinner>
+        Logout
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <app-placeholder-card [title]="title" [description]="description"></app-placeholder-card>
+</ion-content>

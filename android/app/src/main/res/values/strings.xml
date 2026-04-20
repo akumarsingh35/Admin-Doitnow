@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">admin-doitnow</string>
+    <string name="title_activity_main">admin-doitnow</string>
+    <string name="package_name">com.example.admindoitnow</string>
+    <string name="custom_url_scheme">com.example.admindoitnow</string>
+    <string name="server_client_id">298547120620-p9umkah0rn919s76vf0vhse8ntovr2qf.apps.googleusercontent.com</string>
+</resources>
