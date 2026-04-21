@@ -25,7 +25,7 @@
         <ion-card class="service-card">
           <div class="media" [ngClass]="service.colorClass || ''">
             <img
-              *ngIf="service.displayType === 'IMAGE' && service.imageUrl"
+              *ngIf="(service.displayType === 'IMAGE' || !service.displayType) && service.imageUrl"
               [src]="service.imageUrl"
               [alt]="service.title"
             />
@@ -35,6 +35,9 @@
               [alt]="service.title"
               class="icon"
             />
+            <div class="media-fallback" *ngIf="(!service.imageUrl && !service.iconUrl)">
+              <div class="fallback-text">No media</div>
+            </div>
           </div>
 
           <ion-card-header>
@@ -128,13 +131,63 @@
             </ion-select>
           </ion-item>
 
-          <ion-item>
+          <ion-item *ngIf="isEditMode">
             <ion-input label="Image URL" labelPlacement="stacked" formControlName="imageUrl"></ion-input>
           </ion-item>
 
-          <ion-item>
+          <div class="media-editor">
+            <div class="media-preview" *ngIf="imagePreviewUrl || form.value.imageUrl">
+              <img [src]="imagePreviewUrl || form.value.imageUrl" alt="Service image" />
+            </div>
+
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onSelectImage($event)"
+              [disabled]="isSubmitting"
+            />
+
+            <ion-button
+              *ngIf="isEditMode && selectedService?.imageUrl"
+              size="small"
+              fill="outline"
+              color="danger"
+              [disabled]="isSubmitting || isDeletingImage"
+              (click)="deleteExistingImage()"
+            >
+              <ion-spinner *ngIf="isDeletingImage" name="crescent"></ion-spinner>
+              <span *ngIf="!isDeletingImage">Delete image</span>
+            </ion-button>
+          </div>
+
+          <ion-item *ngIf="isEditMode">
             <ion-input label="Icon URL" labelPlacement="stacked" formControlName="iconUrl"></ion-input>
           </ion-item>
+
+          <div class="media-editor">
+            <div class="media-preview icon" *ngIf="iconPreviewUrl || form.value.iconUrl">
+              <img [src]="iconPreviewUrl || form.value.iconUrl" alt="Service icon" />
+            </div>
+
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onSelectIcon($event)"
+              [disabled]="isSubmitting"
+            />
+
+            <ion-button
+              *ngIf="isEditMode && selectedService?.iconUrl"
+              size="small"
+              fill="outline"
+              color="danger"
+              [disabled]="isSubmitting || isDeletingIcon"
+              (click)="deleteExistingIcon()"
+            >
+              <ion-spinner *ngIf="isDeletingIcon" name="crescent"></ion-spinner>
+              <span *ngIf="!isDeletingIcon">Delete icon</span>
+            </ion-button>
+          </div>
 
           <ion-item>
             <ion-input label="Color Class" labelPlacement="stacked" formControlName="colorClass"></ion-input>

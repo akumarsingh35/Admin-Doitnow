@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
+import { FcmService } from '../../services/fcm.service';
 import { GoogleSignInService } from '../../services/google-signin.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class LoginPage implements OnInit {
 
   constructor(
     private readonly authService: AuthService,
+    private readonly fcmService: FcmService,
     private readonly googleSignInService: GoogleSignInService,
     private readonly router: Router,
   ) {}
@@ -37,7 +39,11 @@ export class LoginPage implements OnInit {
 
     try {
       const idToken = await this.googleSignInService.signIn();
-      await this.authService.loginWithGoogleToken(idToken);
+      const session = await this.authService.loginWithGoogleToken(idToken);
+
+      // Initialize FCM for Android (fire-and-forget, do not block)
+      void this.fcmService.initFCM(session.accessToken);
+
       await this.router.navigateByUrl('/dashboard', { replaceUrl: true });
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 403) {

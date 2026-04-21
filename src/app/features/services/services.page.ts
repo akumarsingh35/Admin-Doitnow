@@ -30,6 +30,13 @@ export class ServicesPage implements OnInit {
   form: FormGroup;
   isSubmitting = false;
 
+  imageFile: File | null = null;
+  iconFile: File | null = null;
+  imagePreviewUrl: string | null = null;
+  iconPreviewUrl: string | null = null;
+  isDeletingImage = false;
+  isDeletingIcon = false;
+
   readonly displayTypeOptions: Array<{ value: ServiceDisplayType; label: string }> = [
     { value: 'IMAGE', label: 'IMAGE' },
     { value: 'ICON', label: 'ICON' },
@@ -52,7 +59,7 @@ export class ServicesPage implements OnInit {
       currency: ['INR', [Validators.required]],
       imageUrl: [''],
       iconUrl: [''],
-      displayType: ['IMAGE', [Validators.required]],
+      displayType: ['IMAGE'],
       colorClass: [''],
       tag: [''],
       isPopular: [false],
@@ -89,6 +96,7 @@ export class ServicesPage implements OnInit {
 
     this.isEditMode = false;
     this.selectedService = null;
+    this.clearMediaState();
     this.form.reset({
       title: '',
       subtitle: '',
@@ -113,6 +121,7 @@ export class ServicesPage implements OnInit {
 
     this.isEditMode = true;
     this.selectedService = service;
+    this.clearMediaState();
     this.form.reset({
       title: service.title ?? '',
       subtitle: service.subtitle ?? '',
@@ -136,7 +145,72 @@ export class ServicesPage implements OnInit {
     }
 
     this.isModalOpen = false;
+    this.clearMediaState();
     this.cdr.markForCheck();
+  }
+
+  onSelectImage(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.imageFile = file;
+    this.imagePreviewUrl = file ? URL.createObjectURL(file) : null;
+    this.cdr.markForCheck();
+  }
+
+  onSelectIcon(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.iconFile = file;
+    this.iconPreviewUrl = file ? URL.createObjectURL(file) : null;
+    this.cdr.markForCheck();
+  }
+
+  async deleteExistingImage(): Promise<void> {
+    const id = this.selectedService?.id;
+    if (!this.isEditMode || !id || this.isDeletingImage || this.isSubmitting) {
+      return;
+    }
+
+    this.isDeletingImage = true;
+    this.cdr.markForCheck();
+
+    try {
+      await this.adminServiceService.deleteServiceImage(id);
+      if (this.selectedService) {
+        this.selectedService = { ...this.selectedService, imageUrl: null };
+      }
+      this.form.patchValue({ imageUrl: '' });
+      await this.presentToast('Image deleted.');
+    } catch (error) {
+      await this.handleApiError(error);
+    } finally {
+      this.isDeletingImage = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  async deleteExistingIcon(): Promise<void> {
+    const id = this.selectedService?.id;
+    if (!this.isEditMode || !id || this.isDeletingIcon || this.isSubmitting) {
+      return;
+    }
+
+    this.isDeletingIcon = true;
+    this.cdr.markForCheck();
+
+    try {
+      await this.adminServiceService.deleteServiceIcon(id);
+      if (this.selectedService) {
+        this.selectedService = { ...this.selectedService, iconUrl: null };
+      }
+      this.form.patchValue({ iconUrl: '' });
+      await this.presentToast('Icon deleted.');
+    } catch (error) {
+      await this.handleApiError(error);
+    } finally {
+      this.isDeletingIcon = false;
+      this.cdr.markForCheck();
+    }
   }
 
   async submit(): Promise<void> {
@@ -157,25 +231,39 @@ export class ServicesPage implements OnInit {
       const raw = this.form.getRawValue() as CreateServicePayload;
       const payload: CreateServicePayload = {
         title: String(raw.title ?? '').trim(),
-        subtitle: String(raw.subtitle ?? ''),
-        description: String(raw.description ?? ''),
+        subtitle: String(raw.subtitle ?? '').trim() || undefined,
+        description: String(raw.description ?? '').trim() || undefined,
         startingPrice: Number(raw.startingPrice),
-        currency: 'INR',
-        imageUrl: String(raw.imageUrl ?? ''),
-        iconUrl: String(raw.iconUrl ?? ''),
-        displayType: raw.displayType,
-        colorClass: String(raw.colorClass ?? ''),
-        tag: String(raw.tag ?? ''),
+        currency: String(raw.currency ?? 'INR'),
+        imageUrl: String(raw.imageUrl ?? '').trim() || undefined,
+        iconUrl: String(raw.iconUrl ?? '').trim() || undefined,
+        displayType: raw.displayType || undefined,
+        colorClass: String(raw.colorClass ?? '').trim() || undefined,
+        tag: String(raw.tag ?? '').trim() || undefined,
         isPopular: Boolean(raw.isPopular),
       };
 
-      if (!payload.title || !payload.displayType || Number.isNaN(payload.startingPrice)) {
+      if (!payload.title || Number.isNaN(payload.startingPrice)) {
         await this.presentToast('Please fill required fields.');
         return;
       }
 
       if (!this.isEditMode) {
-        await this.adminServiceService.createService(payload);
+        const created = (await this.adminServiceService.createService(payload)) as {
+          message?: string;
+          data?: { id?: string };
+        };
+        const createdId = created?.data?.id;
+        if (createdId) {
+          if (this.imageFile) {
+            const img = await this.adminServiceService.uploadServiceImage(createdId, this.imageFile);
+            this.form.patchValue({ imageUrl: img.data.imageUrl });
+          }
+          if (this.iconFile) {
+            const ic = await this.adminServiceService.uploadServiceIcon(createdId, this.iconFile);
+            this.form.patchValue({ iconUrl: ic.data.iconUrl });
+          }
+        }
       } else {
         const id = this.selectedService?.id;
         if (!id) {
@@ -187,6 +275,15 @@ export class ServicesPage implements OnInit {
           ...payload,
         };
         await this.adminServiceService.updateService(id, updatePayload);
+
+        if (this.imageFile) {
+          const img = await this.adminServiceService.uploadServiceImage(id, this.imageFile);
+          this.form.patchValue({ imageUrl: img.data.imageUrl });
+        }
+        if (this.iconFile) {
+          const ic = await this.adminServiceService.uploadServiceIcon(id, this.iconFile);
+          this.form.patchValue({ iconUrl: ic.data.iconUrl });
+        }
       }
 
       this.isModalOpen = false;
@@ -247,6 +344,22 @@ export class ServicesPage implements OnInit {
 
   showIconUrl(service: AdminService): string {
     return service.displayType === 'ICON' ? service.iconUrl ?? '' : '';
+  }
+
+  private clearMediaState(): void {
+    if (this.imagePreviewUrl) {
+      URL.revokeObjectURL(this.imagePreviewUrl);
+    }
+    if (this.iconPreviewUrl) {
+      URL.revokeObjectURL(this.iconPreviewUrl);
+    }
+
+    this.imageFile = null;
+    this.iconFile = null;
+    this.imagePreviewUrl = null;
+    this.iconPreviewUrl = null;
+    this.isDeletingImage = false;
+    this.isDeletingIcon = false;
   }
 
   private async handleApiError(error: unknown): Promise<void> {

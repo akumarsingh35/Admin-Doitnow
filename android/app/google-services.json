@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1003774098800",
+    "project_id": "doitnow-admin",
+    "storage_bucket": "doitnow-admin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1003774098800:android:59f9ea1700203dc2a0e3b5",
+        "android_client_info": {
+          "package_name": "com.example.admindoitnow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBi6hH8QO8GHmHGClQNDLrWiIKojhOVHRI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
