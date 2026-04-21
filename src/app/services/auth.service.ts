@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 
@@ -36,7 +36,24 @@ export class AuthService {
   constructor(private readonly http: HttpClient) {}
 
   isAuthenticated(): boolean {
-    return Boolean(this.getAccessToken());
+    const accessToken = this.getAccessToken();
+    const refreshToken = this.getRefreshToken();
+
+    if (!accessToken || !refreshToken) {
+      if (accessToken || refreshToken) {
+        this.clearSession();
+      }
+
+      return false;
+    }
+
+    const expiresAt = this.getJwtExpiry(accessToken);
+    if (expiresAt && Date.now() >= expiresAt) {
+      this.clearSession();
+      return false;
+    }
+
+    return true;
   }
 
   getAccessToken(): string | null {
@@ -63,9 +80,11 @@ export class AuthService {
 
   async loginWithGoogleToken(idToken: string): Promise<AuthSession> {
     const response = await firstValueFrom(
-      this.http.post<GoogleAuthResponse>(`${environment.apiUrl}/admin/auth/google`, {
-        token: idToken,
-      }),
+      this.http
+        .post<GoogleAuthResponse>(`${environment.apiUrl}/admin/auth/google`, {
+          token: idToken,
+        })
+        .pipe(timeout(20_000)),
     );
 
     const session = this.normalizeSession(response);
@@ -76,7 +95,7 @@ export class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await firstValueFrom(this.http.post(`${environment.apiUrl}/auth/logout`, {}));
+      await firstValueFrom(this.http.post(`${environment.apiUrl}/auth/logout`, {}).pipe(timeout(10_000)));
     } finally {
       this.clearSession();
     }
@@ -109,5 +128,25 @@ export class AuthService {
       refreshToken,
       user: payload.user ?? null,
     };
+  }
+
+  private getJwtExpiry(token: string): number | null {
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    try {
+      const payload = JSON.parse(this.base64UrlDecode(parts[1])) as { exp?: unknown };
+      return typeof payload.exp === 'number' ? payload.exp * 1000 : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private base64UrlDecode(value: string): string {
+    const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+    return atob(padded);
   }
 }
