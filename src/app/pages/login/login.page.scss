@@ -1,37 +1,218 @@
+// Login: full-viewport layout with mesh background + elevated card (works with light/dark system palette)
+
 .login-content {
-  --background: var(--ion-background-color);
+  --background: transparent;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  position: relative;
 }
 
-.login-container {
+.login-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--login-bg-base, var(--ion-background-color, #f4f5f7));
+}
+
+.login-bg-mesh {
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background:
+    radial-gradient(1200px 600px at 15% 10%, color-mix(in srgb, var(--ion-color-primary) 22%, transparent) 0%, transparent 55%),
+    radial-gradient(900px 500px at 85% 20%, color-mix(in srgb, var(--ion-color-tertiary, var(--ion-color-primary)) 18%, transparent) 0%, transparent 50%),
+    radial-gradient(800px 480px at 50% 95%, color-mix(in srgb, var(--ion-color-secondary, var(--ion-color-medium)) 14%, transparent) 0%, transparent 55%);
+}
+
+.login-bg-glow {
+  position: absolute;
+  width: min(72vw, 520px);
+  height: min(72vw, 520px);
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.login-bg-glow--a {
+  top: -12%;
+  left: -8%;
+  background: color-mix(in srgb, var(--ion-color-primary) 55%, transparent);
+}
+
+.login-bg-glow--b {
+  bottom: -18%;
+  right: -10%;
+  background: color-mix(in srgb, var(--ion-color-tertiary, var(--ion-color-primary)) 50%, transparent);
+}
+
+.login-shell {
+  position: relative;
+  z-index: 1;
   min-height: 100%;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 1.25rem;
+  padding: max(1.5rem, env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom))
+    max(1.25rem, env(safe-area-inset-left));
+}
+
+.login-card {
+  width: 100%;
   max-width: 26rem;
-  margin: 0 auto;
+  padding: clamp(1.75rem, 4vw, 2.25rem);
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 28%, transparent);
+  background: color-mix(in srgb, var(--ion-background-color, #fff) 78%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--ion-color-light-shade, #fff) 35%, transparent) inset,
+    0 24px 60px -28px color-mix(in srgb, var(--ion-color-dark) 35%, transparent);
 }
 
-.brand-block {
+@media (prefers-color-scheme: dark) {
+  .login-card {
+    background: color-mix(in srgb, var(--ion-background-color, #121212) 72%, transparent);
+    border-color: color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--ion-color-light) 8%, transparent) inset,
+      0 28px 70px -32px rgba(0, 0, 0, 0.55);
+  }
+
+  .login-bg-mesh {
+    opacity: 0.45;
+  }
+}
+
+.login-brand {
   text-align: center;
+  margin-bottom: 1.75rem;
 }
 
-.brand-icon {
-  font-size: 3rem;
+.brand-mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ion-color-primary) 22%, transparent),
+    color-mix(in srgb, var(--ion-color-primary) 8%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--ion-color-primary) 28%, transparent);
+  box-shadow: 0 10px 28px -16px color-mix(in srgb, var(--ion-color-primary) 55%, transparent);
+}
+
+.brand-mark ion-icon {
+  font-size: 1.75rem;
   color: var(--ion-color-primary);
 }
 
-.brand-block h1 {
-  margin: 0.75rem 0 0.5rem;
-  font-size: 1.75rem;
+.login-title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 4vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--ion-text-color);
 }
 
-.brand-block p {
+.login-subtitle {
   margin: 0;
-  color: var(--ion-color-medium);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ion-color-medium-shade, var(--ion-color-medium));
 }
 
-.error-text {
+.login-actions {
+  margin-bottom: 1rem;
+}
+
+.google-signin-btn {
+  --background: var(--login-google-bg, #ffffff);
+  --background-hover: var(--login-google-bg-hover, #f7f8f9);
+  --background-activated: var(--login-google-bg-active, #eef0f2);
+  --color: #1f1f1f;
+  --box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 24px -12px rgba(0, 0, 0, 0.22);
+  --border-width: 1px;
+  --border-color: rgba(0, 0, 0, 0.12);
+  --border-style: solid;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  min-height: 3.25rem;
+  text-transform: none;
+}
+
+.google-signin-btn ion-icon[slot='start'] {
+  font-size: 1.35rem;
+  margin-inline-end: 0.5rem;
+}
+
+.google-signin-btn[disabled] {
+  opacity: 0.75;
+}
+
+@media (prefers-color-scheme: dark) {
+  .google-signin-btn {
+    --background: #1f1f1f;
+    --background-hover: #2a2a2a;
+    --background-activated: #333333;
+    --color: #f3f3f3;
+    --border-color: rgba(255, 255, 255, 0.12);
+    --box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 36px -18px rgba(0, 0, 0, 0.65);
+  }
+}
+
+.login-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--ion-color-danger) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ion-color-danger) 35%, transparent);
+  color: var(--ion-color-danger-shade, var(--ion-color-danger));
+}
+
+.login-alert ion-icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  margin-top: 0.1rem;
+}
+
+.login-alert p {
   margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.login-footer {
+  margin-top: 0.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
+}
+
+.login-hint {
+  margin: 0;
+  font-size: 0.8rem;
   text-align: center;
+  color: var(--ion-color-medium);
+  letter-spacing: 0.01em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-bg-glow,
+  .login-bg-mesh {
+    filter: none;
+  }
 }

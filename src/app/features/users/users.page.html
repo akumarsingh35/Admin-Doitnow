@@ -1,9 +1,147 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <app-header-menu-button></app-header-menu-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <app-placeholder-card [title]="title" [description]="description"></app-placeholder-card>
+<ion-content class="users-content" [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="users-canvas" aria-hidden="true">
+    <div class="users-canvas-glow users-canvas-glow--1"></div>
+    <div class="users-canvas-glow users-canvas-glow--2"></div>
+    <div class="users-canvas-mesh"></div>
+  </div>
+
+  <div class="users-inner">
+    <article class="users-hero">
+      <div class="users-hero-inner">
+        <div class="users-hero-top">
+          <span class="users-hero-badge">Directory</span>
+          <span class="users-hero-version">Live data</span>
+        </div>
+        <h2 class="users-hero-title">Users &amp; customers</h2>
+        <p class="users-hero-lead">{{ lead }}</p>
+      </div>
+    </article>
+
+    <div class="users-metrics" role="group" aria-label="User and booking summary">
+      <div class="users-metric users-metric--a">
+        <span class="users-metric-value">{{ loading ? '—' : uniqueCustomerCount }}</span>
+        <span class="users-metric-label">Unique customers</span>
+        <span class="users-metric-hint">In sample ({{ sampleLimit }} bookings max)</span>
+      </div>
+      <div class="users-metric users-metric--b">
+        <span class="users-metric-value">{{ loading ? '—' : totalBookings }}</span>
+        <span class="users-metric-label">Total bookings</span>
+        <span class="users-metric-hint">Across all pages</span>
+      </div>
+      <div class="users-metric users-metric--c">
+        <span class="users-metric-value">{{ loading ? '—' : sampleBookingCount }}</span>
+        <span class="users-metric-label">In sample</span>
+        <span class="users-metric-hint">Rows loaded</span>
+      </div>
+    </div>
+
+    <section *ngIf="adminSession" class="users-session" aria-labelledby="session-heading">
+      <h3 id="session-heading" class="users-session-title">Signed in</h3>
+      <div class="users-session-card">
+        <div class="users-session-avatar" aria-hidden="true">{{ adminSession.initials }}</div>
+        <div class="users-session-body">
+          <div class="users-session-name">{{ adminSession.displayName }}</div>
+          <div class="users-session-email">{{ adminSession.email }}</div>
+        </div>
+        <ion-icon name="checkmark-circle" class="users-session-check" aria-hidden="true"></ion-icon>
+      </div>
+    </section>
+
+    <section class="users-directory" aria-labelledby="directory-heading">
+      <header class="users-directory-head">
+        <h3 id="directory-heading" class="users-directory-title">Customer preview</h3>
+        <p class="users-directory-sub">Derived from booking records (name &amp; phone). Open Bookings for full detail.</p>
+        <ion-button class="users-directory-cta" size="small" fill="outline" routerLink="/dashboard">
+          <ion-icon name="calendar-outline" slot="start" aria-hidden="true"></ion-icon>
+          Open bookings
+        </ion-button>
+      </header>
+
+      <div *ngIf="loading" class="users-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <span>Loading booking sample…</span>
+      </div>
+
+      <p *ngIf="loadError && !loading" class="users-error" role="alert">{{ loadError }}</p>
+
+      <div *ngIf="!loading && !loadError && customers.length === 0" class="users-empty">
+        <div class="users-empty-icon-wrap" aria-hidden="true">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+        <h4 class="users-empty-title">No customer rows in this sample</h4>
+        <p class="users-empty-desc">
+          Bookings without a linked customer name/phone won’t appear here. Adjust filters on Bookings or wait for new
+          activity.
+        </p>
+      </div>
+
+      <ul *ngIf="!loading && !loadError && customers.length > 0" class="users-customer-list">
+        <li *ngFor="let c of customers; trackBy: trackByCustomerKey" class="users-customer-item">
+          <div class="users-customer-card">
+            <div class="users-customer-avatar" aria-hidden="true">
+              {{ ((c.fullName || '?').charAt(0)) | uppercase }}
+            </div>
+            <div class="users-customer-body">
+              <div class="users-customer-top">
+                <span class="users-customer-name">{{ c.fullName }}</span>
+                <span class="users-customer-count">{{ c.bookingCount }} booking<span *ngIf="c.bookingCount !== 1">s</span></span>
+              </div>
+              <div class="users-customer-phone">
+                <ion-icon name="call-outline" aria-hidden="true"></ion-icon>
+                {{ c.phone }}
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="users-focus" aria-labelledby="focus-heading">
+      <header class="users-focus-head">
+        <h3 id="focus-heading" class="users-focus-title">Roadmap</h3>
+        <p class="users-focus-sub">When your user service is wired</p>
+      </header>
+
+      <ul class="users-focus-list">
+        <li *ngFor="let f of focusAreas" class="users-focus-item">
+          <div
+            class="users-focus-card"
+            [class.users-focus-card--indigo]="f.orb === 'indigo'"
+            [class.users-focus-card--violet]="f.orb === 'violet'"
+            [class.users-focus-card--amber]="f.orb === 'amber'"
+          >
+            <div class="users-focus-icon-wrap" aria-hidden="true">
+              <ion-icon [name]="f.icon" class="users-focus-icon"></ion-icon>
+            </div>
+            <div class="users-focus-body">
+              <div class="users-focus-top">
+                <h4 class="users-focus-card-title">{{ f.title }}</h4>
+                <span class="users-focus-pill">Planned</span>
+              </div>
+              <p class="users-focus-desc">{{ f.subtitle }}</p>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="users-focus-chevron" aria-hidden="true"></ion-icon>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <p class="users-foot">
+      Customer list is a convenience preview from the latest booking page only. Replace with a dedicated users API when
+      available.
+    </p>
+  </div>
 </ion-content>

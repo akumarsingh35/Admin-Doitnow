@@ -5,10 +5,11 @@ import { RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
+import { HeaderMenuButtonComponent } from './components/header-menu-button/header-menu-button.component';
 import { PlaceholderCardComponent } from './components/placeholder-card/placeholder-card.component';
 
 @NgModule({
-  declarations: [PlaceholderCardComponent],
+  declarations: [PlaceholderCardComponent, HeaderMenuButtonComponent],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, IonicModule],
   exports: [
     CommonModule,
@@ -17,6 +18,7 @@ import { PlaceholderCardComponent } from './components/placeholder-card/placehol
     RouterModule,
     IonicModule,
     PlaceholderCardComponent,
+    HeaderMenuButtonComponent,
   ],
 })
 export class SharedModule {}

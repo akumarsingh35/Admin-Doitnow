@@ -1,9 +1,80 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <app-header-menu-button></app-header-menu-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <app-placeholder-card [title]="title" [description]="description"></app-placeholder-card>
+<ion-content class="requests-content" [fullscreen]="true">
+  <div class="requests-canvas" aria-hidden="true">
+    <div class="requests-canvas-glow requests-canvas-glow--1"></div>
+    <div class="requests-canvas-glow requests-canvas-glow--2"></div>
+    <div class="requests-canvas-mesh"></div>
+  </div>
+
+  <div class="requests-inner">
+    <article class="requests-hero">
+      <div class="requests-hero-inner">
+        <div class="requests-hero-top">
+          <span class="requests-hero-badge">Operations</span>
+          <span class="requests-hero-version">v1</span>
+        </div>
+        <h2 class="requests-hero-title">Requests hub</h2>
+        <p class="requests-hero-lead">{{ lead }}</p>
+      </div>
+    </article>
+
+    <div class="requests-metrics" role="group" aria-label="Summary metrics">
+      <div
+        *ngFor="let s of stats"
+        class="requests-metric"
+        [class.requests-metric--a]="s.tone === 'a'"
+        [class.requests-metric--b]="s.tone === 'b'"
+        [class.requests-metric--c]="s.tone === 'c'"
+      >
+        <span class="requests-metric-value">{{ s.value }}</span>
+        <span class="requests-metric-label">{{ s.label }}</span>
+        <span class="requests-metric-hint">{{ s.hint }}</span>
+      </div>
+    </div>
+
+    <section class="requests-lanes" aria-labelledby="lanes-heading">
+      <header class="requests-lanes-head">
+        <div class="requests-lanes-head-text">
+          <h3 id="lanes-heading" class="requests-lanes-title">Workflow lanes</h3>
+          <p class="requests-lanes-sub">Enable each stream when your APIs are ready</p>
+        </div>
+      </header>
+
+      <ul class="requests-lane-list">
+        <li *ngFor="let w of workflows" class="requests-lane-item">
+          <div
+            class="requests-lane"
+            [class.requests-lane--indigo]="w.orb === 'indigo'"
+            [class.requests-lane--violet]="w.orb === 'violet'"
+            [class.requests-lane--amber]="w.orb === 'amber'"
+            [class.requests-lane--emerald]="w.orb === 'emerald'"
+          >
+            <div class="requests-lane-icon-wrap" aria-hidden="true">
+              <ion-icon [name]="w.icon" class="requests-lane-icon"></ion-icon>
+            </div>
+            <div class="requests-lane-body">
+              <div class="requests-lane-top">
+                <h4 class="requests-lane-title">{{ w.title }}</h4>
+                <span class="requests-lane-pill">Soon</span>
+              </div>
+              <p class="requests-lane-desc">{{ w.subtitle }}</p>
+            </div>
+            <ion-icon name="chevron-forward-outline" class="requests-lane-chevron" aria-hidden="true"></ion-icon>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <p class="requests-foot">
+      Structured for filters, search, and deep links — swap placeholders when services go live.
+    </p>
+  </div>
 </ion-content>

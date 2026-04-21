@@ -1,18 +1,47 @@
-<ion-content class="login-content">
-  <div class="login-container ion-padding">
-    <div class="brand-block">
-      <ion-icon name="shield-checkmark-outline" class="brand-icon"></ion-icon>
-      <h1>Admin Panel</h1>
-      <p>Secure access for authorized administrators.</p>
-    </div>
-
-    <ion-button expand="block" size="large" [disabled]="loading" (click)="continueWithGoogle()">
-      <ion-spinner slot="start" *ngIf="loading"></ion-spinner>
-      Continue with Google
-    </ion-button>
-
-    <ion-text color="danger" *ngIf="errorMessage">
-      <p class="error-text">{{ errorMessage }}</p>
-    </ion-text>
+<ion-content [fullscreen]="true" class="login-content">
+  <div class="login-backdrop" role="presentation">
+    <div class="login-bg-mesh" aria-hidden="true"></div>
+    <div class="login-bg-glow login-bg-glow--a" aria-hidden="true"></div>
+    <div class="login-bg-glow login-bg-glow--b" aria-hidden="true"></div>
   </div>
+
+  <main class="login-shell">
+    <section class="login-card" aria-labelledby="login-title">
+      <header class="login-brand">
+        <div class="brand-mark">
+          <ion-icon name="shield-checkmark-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <h1 id="login-title" class="login-title">Admin Panel</h1>
+        <p class="login-subtitle">
+          Sign in with your Google account to access the dashboard.
+        </p>
+      </header>
+
+      <div class="login-actions">
+        <ion-button
+          class="google-signin-btn"
+          fill="solid"
+          expand="block"
+          size="large"
+          shape="round"
+          type="button"
+          [disabled]="loading"
+          (click)="continueWithGoogle()"
+        >
+          <ion-spinner *ngIf="loading" slot="start" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="!loading" name="logo-google" slot="start" aria-hidden="true"></ion-icon>
+          <span>{{ loading ? 'Signing in…' : 'Continue with Google' }}</span>
+        </ion-button>
+      </div>
+
+      <div *ngIf="errorMessage" class="login-alert" role="alert">
+        <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+        <p>{{ errorMessage }}</p>
+      </div>
+
+      <footer class="login-footer">
+        <p class="login-hint">Authorized administrators only.</p>
+      </footer>
+    </section>
+  </main>
 </ion-content>

@@ -42,6 +42,19 @@ export class ServicesPage implements OnInit {
     { value: 'ICON', label: 'ICON' },
   ];
 
+  /** Shown in hero metrics when data is loaded */
+  get catalogTotal(): number {
+    return this.services.length;
+  }
+
+  get catalogPopular(): number {
+    return this.services.filter((s) => s.isPopular).length;
+  }
+
+  get catalogWithMedia(): number {
+    return this.services.filter((s) => !!(s.imageUrl || s.iconUrl)).length;
+  }
+
   constructor(
     private readonly adminServiceService: AdminServiceService,
     private readonly authService: AuthService,

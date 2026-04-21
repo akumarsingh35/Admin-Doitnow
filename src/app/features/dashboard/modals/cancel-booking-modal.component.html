@@ -1,83 +1,129 @@
-<ion-header>
+<ion-header class="cancel-modal-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="back()">Back</ion-button>
+      <ion-button fill="clear" (click)="back()" aria-label="Back">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title>Cancel booking</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()">Close</ion-button>
+      <ion-button fill="clear" (click)="dismiss()" aria-label="Close">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="cancel-modal-content" [fullscreen]="true">
   <ng-container *ngIf="step === 'reason'">
-    <div class="section ion-padding">
-      <div class="kicker">Booking</div>
-      <div class="booking-row">
-        <div class="id">#{{ booking.id }}</div>
-        <ion-badge color="warning" *ngIf="booking.status === 'PENDING'">Pending</ion-badge>
-      </div>
-      <div class="muted">{{ booking.user?.fullName || 'Customer' }} • {{ bookingCustomerPhone() }}</div>
-      <div class="muted address">{{ bookingAddressText() }}</div>
-    </div>
+    <div class="cancel-hero-spacer" aria-hidden="true"></div>
 
-    <div class="section ion-padding">
-      <div class="kicker">Reason for cancellation</div>
+    <section class="cancel-section cancel-section--summary" aria-label="Booking summary">
+      <div class="cancel-glass-card">
+        <div class="cancel-card-kicker">Booking</div>
+        <div class="cancel-booking-head">
+          <span class="cancel-booking-id">#{{ booking.id }}</span>
+          <ion-badge color="warning" class="cancel-status-badge" *ngIf="booking.status === 'PENDING'">Pending</ion-badge>
+        </div>
+        <p class="cancel-booking-line">
+          <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+          {{ booking.user?.fullName || 'Customer' }}
+          <span class="cancel-dot">•</span>
+          {{ bookingCustomerPhone() }}
+        </p>
+        <p class="cancel-booking-address">
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+          {{ bookingAddressText() }}
+        </p>
+      </div>
+    </section>
+
+    <section class="cancel-section">
+      <h2 class="cancel-section-title">Reason for cancellation</h2>
+      <p class="cancel-section-hint">This will be stored with the booking record</p>
       <ion-textarea
+        class="cancel-textarea"
         label="Reason"
         labelPlacement="stacked"
         autoGrow="true"
-        placeholder="Write the reason..."
+        placeholder="Describe why this booking is being cancelled…"
         [(ngModel)]="reason"
       ></ion-textarea>
 
-      <div class="cta">
-        <ion-button expand="block" color="danger" (click)="next()">Continue</ion-button>
+      <div class="cancel-cta">
+        <ion-button
+          class="cancel-continue-btn"
+          expand="block"
+          size="large"
+          shape="round"
+          color="danger"
+          (click)="next()"
+        >
+          Continue
+        </ion-button>
       </div>
-    </div>
+    </section>
   </ng-container>
 
   <ng-container *ngIf="step === 'confirm'">
-    <div class="section ion-padding">
-      <div class="kicker">Confirm cancellation</div>
+    <div class="cancel-hero-spacer cancel-hero-spacer--sm" aria-hidden="true"></div>
 
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Reason</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="reason">{{ reason.trim() }}</div>
-        </ion-card-content>
-      </ion-card>
+    <section class="cancel-section cancel-section--confirm">
+      <h2 class="cancel-section-title">Confirm cancellation</h2>
+      <p class="cancel-section-hint">This action cannot be undone from the app</p>
 
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Customer</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="pair">
-            <div class="label">Name</div>
-            <div class="value">{{ booking.user?.fullName || '—' }}</div>
+      <div class="cancel-confirm-stack">
+        <div class="cancel-confirm-panel">
+          <div class="cancel-panel-header cancel-panel-header--danger">
+            <div class="cancel-panel-icon" aria-hidden="true">
+              <ion-icon name="document-text-outline"></ion-icon>
+            </div>
+            <span class="cancel-panel-title">Reason</span>
           </div>
-          <div class="pair">
-            <div class="label">Phone</div>
-            <div class="value">{{ bookingCustomerPhone() }}</div>
+          <div class="cancel-reason-block">
+            <p class="cancel-reason-text">{{ reason.trim() }}</p>
           </div>
-          <div class="pair">
-            <div class="label">Address</div>
-            <div class="value">{{ bookingAddressText() }}</div>
-          </div>
-        </ion-card-content>
-      </ion-card>
+        </div>
 
-      <div class="cta">
-        <ion-button expand="block" color="danger" [disabled]="isSubmitting" (click)="cancel()">
-          <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+        <div class="cancel-confirm-panel">
+          <div class="cancel-panel-header">
+            <div class="cancel-panel-icon cancel-panel-icon--customer" aria-hidden="true">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <span class="cancel-panel-title">Customer</span>
+          </div>
+          <dl class="cancel-dl">
+            <div class="cancel-dl-row">
+              <dt>Name</dt>
+              <dd>{{ booking.user?.fullName || '—' }}</dd>
+            </div>
+            <div class="cancel-dl-row">
+              <dt>Phone</dt>
+              <dd>{{ bookingCustomerPhone() }}</dd>
+            </div>
+            <div class="cancel-dl-row">
+              <dt>Address</dt>
+              <dd>{{ bookingAddressText() }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="cancel-cta">
+        <ion-button
+          class="cancel-submit-btn"
+          expand="block"
+          size="large"
+          shape="round"
+          color="danger"
+          [disabled]="isSubmitting"
+          (click)="cancel()"
+        >
+          <ion-spinner *ngIf="isSubmitting" name="crescent" slot="start"></ion-spinner>
           <span *ngIf="!isSubmitting">Confirm cancellation</span>
+          <span *ngIf="isSubmitting">Cancelling…</span>
         </ion-button>
       </div>
-    </div>
+    </section>
   </ng-container>
 </ion-content>
-

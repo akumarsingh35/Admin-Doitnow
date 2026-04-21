@@ -1,210 +1,369 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>Services</ion-title>
-    <ion-buttons slot="end">
-      <ion-button [disabled]="loading || isSubmitting" (click)="openAddModal()">
-        Add Service
+    <ion-buttons slot="end" class="services-toolbar-actions">
+      <ion-button
+        class="services-add-btn"
+        size="small"
+        [disabled]="loading || isSubmitting"
+        (click)="openAddModal()"
+        aria-label="Add service"
+      >
+        <ion-icon name="add-outline" slot="start" class="services-add-icon" aria-hidden="true"></ion-icon>
+        <span class="services-add-text">
+          <span class="services-add-long">Add Service</span>
+          <span class="services-add-short">Add</span>
+        </span>
       </ion-button>
+      <app-header-menu-button></app-header-menu-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div *ngIf="loading" class="ion-padding ion-text-center">
-    <ion-spinner></ion-spinner>
-    <p>Loading...</p>
+<ion-content class="services-content" [fullscreen]="true">
+  <div class="services-canvas" aria-hidden="true">
+    <div class="services-canvas-glow services-canvas-glow--1"></div>
+    <div class="services-canvas-glow services-canvas-glow--2"></div>
+    <div class="services-canvas-mesh"></div>
   </div>
 
-  <div *ngIf="!loading && services.length === 0" class="ion-padding ion-text-center">
-    <p>No services available</p>
+  <div class="services-inner">
+    <article class="services-hero">
+      <div class="services-hero-inner">
+        <div class="services-hero-top">
+          <span class="services-hero-badge">Catalog</span>
+          <span class="services-hero-version">Workspace</span>
+        </div>
+        <h2 class="services-hero-title">Service offerings</h2>
+        <p class="services-hero-lead">
+          Shape what customers see—titles, pricing, imagery, and highlights for your bookable services.
+        </p>
+      </div>
+    </article>
+
+    <div class="services-metrics" role="group" aria-label="Catalog summary">
+      <div class="services-metric services-metric--a">
+        <span class="services-metric-value">{{ loading ? '—' : catalogTotal }}</span>
+        <span class="services-metric-label">Total</span>
+        <span class="services-metric-hint">In catalog</span>
+      </div>
+      <div class="services-metric services-metric--b">
+        <span class="services-metric-value">{{ loading ? '—' : catalogPopular }}</span>
+        <span class="services-metric-label">Popular</span>
+        <span class="services-metric-hint">Featured</span>
+      </div>
+      <div class="services-metric services-metric--c">
+        <span class="services-metric-value">{{ loading ? '—' : catalogWithMedia }}</span>
+        <span class="services-metric-label">With media</span>
+        <span class="services-metric-hint">Image or icon</span>
+      </div>
+    </div>
+
+    <section class="services-list-section" aria-labelledby="services-list-heading">
+      <header class="services-list-head">
+        <h3 id="services-list-heading" class="services-list-title">Your services</h3>
+        <p class="services-list-sub" *ngIf="!loading">{{ catalogTotal }} in catalog</p>
+      </header>
+
+      <div *ngIf="loading" class="services-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <p>Loading catalog…</p>
+      </div>
+
+      <div *ngIf="!loading && services.length === 0" class="services-empty">
+        <div class="services-empty-icon-wrap" aria-hidden="true">
+          <ion-icon name="cube-outline"></ion-icon>
+        </div>
+        <h4 class="services-empty-title">No services yet</h4>
+        <p class="services-empty-desc">Create a service to set pricing, copy, and visuals shown to customers.</p>
+        <ion-button class="services-empty-cta" (click)="openAddModal()" [disabled]="isSubmitting">
+          <ion-icon name="add-outline" slot="start" aria-hidden="true"></ion-icon>
+          Add service
+        </ion-button>
+      </div>
+
+      <ion-grid *ngIf="!loading && services.length > 0" class="services-grid">
+        <ion-row>
+          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let service of services">
+            <article class="services-card">
+              <div class="services-card-media" [ngClass]="service.colorClass || ''">
+                <img
+                  *ngIf="(service.displayType === 'IMAGE' || !service.displayType) && service.imageUrl"
+                  [src]="service.imageUrl"
+                  [alt]="service.title"
+                />
+                <img
+                  *ngIf="service.displayType === 'ICON' && service.iconUrl"
+                  [src]="service.iconUrl"
+                  [alt]="service.title"
+                  class="services-card-media-icon"
+                />
+                <div class="services-card-media-fallback" *ngIf="!service.imageUrl && !service.iconUrl">
+                  <ion-icon name="image-outline" aria-hidden="true"></ion-icon>
+                  <span>No media</span>
+                </div>
+                <div class="services-card-media-badges">
+                  <span class="services-card-chip services-card-chip--popular" *ngIf="service.isPopular">Popular</span>
+                </div>
+              </div>
+
+              <div class="services-card-body">
+                <div class="services-card-head">
+                  <h4 class="services-card-title">{{ service.title }}</h4>
+                  <span class="services-card-chip" *ngIf="service.tag">{{ service.tag }}</span>
+                </div>
+                <p class="services-card-subtitle" *ngIf="service.subtitle">{{ service.subtitle }}</p>
+
+                <div class="services-card-price-row">
+                  <span class="services-card-price">{{ service.currency }} {{ service.startingPrice }}</span>
+                  <span class="services-card-price-label">from</span>
+                </div>
+
+                <p class="services-card-desc" *ngIf="service.description">{{ service.description }}</p>
+
+                <div class="services-card-actions">
+                  <ion-button
+                    class="services-card-action"
+                    size="small"
+                    fill="outline"
+                    [disabled]="isSubmitting"
+                    (click)="openEditModal(service)"
+                  >
+                    <ion-icon name="create-outline" slot="start" aria-hidden="true"></ion-icon>
+                    Edit
+                  </ion-button>
+                  <ion-button
+                    class="services-card-action"
+                    size="small"
+                    color="danger"
+                    fill="outline"
+                    [disabled]="isSubmitting"
+                    (click)="confirmDelete(service)"
+                  >
+                    <ion-icon name="trash-outline" slot="start" aria-hidden="true"></ion-icon>
+                    Delete
+                  </ion-button>
+                </div>
+              </div>
+            </article>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </section>
   </div>
-
-  <ion-grid *ngIf="!loading && services.length > 0">
-    <ion-row>
-      <ion-col size="12" size-md="6" size-lg="4" *ngFor="let service of services">
-        <ion-card class="service-card">
-          <div class="media" [ngClass]="service.colorClass || ''">
-            <img
-              *ngIf="(service.displayType === 'IMAGE' || !service.displayType) && service.imageUrl"
-              [src]="service.imageUrl"
-              [alt]="service.title"
-            />
-            <img
-              *ngIf="service.displayType === 'ICON' && service.iconUrl"
-              [src]="service.iconUrl"
-              [alt]="service.title"
-              class="icon"
-            />
-            <div class="media-fallback" *ngIf="(!service.imageUrl && !service.iconUrl)">
-              <div class="fallback-text">No media</div>
-            </div>
-          </div>
-
-          <ion-card-header>
-            <div class="header-row">
-              <ion-card-title>{{ service.title }}</ion-card-title>
-              <ion-badge color="warning" *ngIf="service.isPopular">Popular</ion-badge>
-            </div>
-            <ion-card-subtitle *ngIf="service.subtitle">{{ service.subtitle }}</ion-card-subtitle>
-          </ion-card-header>
-
-          <ion-card-content>
-            <div class="price-row">
-              <div class="price">{{ service.currency }} {{ service.startingPrice }}</div>
-              <ion-badge color="medium" *ngIf="service.tag">{{ service.tag }}</ion-badge>
-            </div>
-            <div class="desc" *ngIf="service.description">{{ service.description }}</div>
-
-            <div class="actions">
-              <ion-button size="small" fill="outline" [disabled]="isSubmitting" (click)="openEditModal(service)">
-                Edit
-              </ion-button>
-              <ion-button size="small" color="danger" fill="outline" [disabled]="isSubmitting" (click)="confirmDelete(service)">
-                Delete
-              </ion-button>
-            </div>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button [disabled]="loading || isSubmitting" (click)="openAddModal()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
 
   <ion-modal [isOpen]="isModalOpen" (didDismiss)="closeModal()">
     <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>{{ isEditMode ? 'Edit Service' : 'Add Service' }}</ion-title>
+      <ion-header class="services-modal-header">
+        <ion-toolbar class="services-modal-toolbar">
+          <ion-title class="services-modal-toolbar-title">{{ isEditMode ? 'Edit service' : 'Add service' }}</ion-title>
           <ion-buttons slot="end">
-            <ion-button [disabled]="isSubmitting" (click)="closeModal()">Close</ion-button>
+            <ion-button
+              class="services-modal-close"
+              fill="clear"
+              [disabled]="isSubmitting"
+              (click)="closeModal()"
+              aria-label="Close"
+            >
+              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
 
-      <ion-content class="ion-padding">
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <ion-item>
-            <ion-input label="Title" labelPlacement="stacked" formControlName="title"></ion-input>
-          </ion-item>
-          <ion-text color="danger" class="error" *ngIf="form.get('title')?.touched && form.get('title')?.invalid">
-            Title is required
-          </ion-text>
+      <ion-content class="services-modal-content" [fullscreen]="true">
+        <div class="services-modal-bg" aria-hidden="true">
+          <div class="services-modal-bg-glow services-modal-bg-glow--1"></div>
+          <div class="services-modal-bg-glow services-modal-bg-glow--2"></div>
+        </div>
 
-          <ion-item>
-            <ion-input label="Subtitle" labelPlacement="stacked" formControlName="subtitle"></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-textarea label="Description" labelPlacement="stacked" formControlName="description"></ion-textarea>
-          </ion-item>
-
-          <ion-item>
-            <ion-input
-              type="number"
-              label="Starting Price"
-              labelPlacement="stacked"
-              formControlName="startingPrice"
-            ></ion-input>
-          </ion-item>
-          <ion-text
-            color="danger"
-            class="error"
-            *ngIf="form.get('startingPrice')?.touched && form.get('startingPrice')?.invalid"
-          >
-            Starting price is required
-          </ion-text>
-
-          <ion-item>
-            <ion-input label="Currency" labelPlacement="stacked" formControlName="currency" readonly="true"></ion-input>
-          </ion-item>
-
-          <ion-item>
-            <ion-select label="Display Type" labelPlacement="stacked" formControlName="displayType">
-              <ion-select-option *ngFor="let opt of displayTypeOptions" [value]="opt.value">
-                {{ opt.label }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-
-          <ion-item *ngIf="isEditMode">
-            <ion-input label="Image URL" labelPlacement="stacked" formControlName="imageUrl"></ion-input>
-          </ion-item>
-
-          <div class="media-editor">
-            <div class="media-preview" *ngIf="imagePreviewUrl || form.value.imageUrl">
-              <img [src]="imagePreviewUrl || form.value.imageUrl" alt="Service image" />
+        <form class="services-modal-form" [formGroup]="form" (ngSubmit)="submit()">
+          <div class="services-modal-intro">
+            <div class="services-modal-intro-glass">
+              <span class="services-modal-intro-kicker">{{ isEditMode ? 'Update catalog entry' : 'New catalog entry' }}</span>
+              <p class="services-modal-intro-text">
+                {{ isEditMode ? 'Adjust copy, pricing, and media shown to customers.' : 'Set the basics, price, and visuals for this offering.' }}
+              </p>
             </div>
-
-            <input
-              type="file"
-              accept="image/*"
-              (change)="onSelectImage($event)"
-              [disabled]="isSubmitting"
-            />
-
-            <ion-button
-              *ngIf="isEditMode && selectedService?.imageUrl"
-              size="small"
-              fill="outline"
-              color="danger"
-              [disabled]="isSubmitting || isDeletingImage"
-              (click)="deleteExistingImage()"
-            >
-              <ion-spinner *ngIf="isDeletingImage" name="crescent"></ion-spinner>
-              <span *ngIf="!isDeletingImage">Delete image</span>
-            </ion-button>
           </div>
 
-          <ion-item *ngIf="isEditMode">
-            <ion-input label="Icon URL" labelPlacement="stacked" formControlName="iconUrl"></ion-input>
-          </ion-item>
+          <section class="services-modal-block" aria-labelledby="svc-basics">
+            <h3 id="svc-basics" class="services-modal-block-title">Basics</h3>
+            <p class="services-modal-block-hint">Name and description appear in listings and detail views.</p>
+            <div class="services-modal-panel">
+              <ion-item class="services-modal-item" lines="none">
+                <ion-input label="Title" labelPlacement="stacked" formControlName="title" autocomplete="off"></ion-input>
+              </ion-item>
+              <ion-text color="danger" class="services-field-error" *ngIf="form.get('title')?.touched && form.get('title')?.invalid">
+                Title is required
+              </ion-text>
+              <ion-item class="services-modal-item" lines="none">
+                <ion-input label="Subtitle" labelPlacement="stacked" formControlName="subtitle" autocomplete="off"></ion-input>
+              </ion-item>
+              <ion-item class="services-modal-item services-modal-item--textarea" lines="none">
+                <ion-textarea
+                  label="Description"
+                  labelPlacement="stacked"
+                  formControlName="description"
+                  [autoGrow]="true"
+                  rows="3"
+                ></ion-textarea>
+              </ion-item>
+            </div>
+          </section>
 
-          <div class="media-editor">
-            <div class="media-preview icon" *ngIf="iconPreviewUrl || form.value.iconUrl">
-              <img [src]="iconPreviewUrl || form.value.iconUrl" alt="Service icon" />
+          <section class="services-modal-block" aria-labelledby="svc-pricing">
+            <h3 id="svc-pricing" class="services-modal-block-title">Pricing</h3>
+            <p class="services-modal-block-hint">Starting price and how the hero asset is shown.</p>
+            <div class="services-modal-panel">
+              <ion-item class="services-modal-item" lines="none">
+                <ion-input
+                  type="number"
+                  inputmode="decimal"
+                  label="Starting price"
+                  labelPlacement="stacked"
+                  formControlName="startingPrice"
+                ></ion-input>
+              </ion-item>
+              <ion-text
+                color="danger"
+                class="services-field-error"
+                *ngIf="form.get('startingPrice')?.touched && form.get('startingPrice')?.invalid"
+              >
+                Starting price is required
+              </ion-text>
+              <ion-item class="services-modal-item" lines="none">
+                <ion-input label="Currency" labelPlacement="stacked" formControlName="currency" readonly="true"></ion-input>
+              </ion-item>
+              <ion-item class="services-modal-item" lines="none">
+                <ion-select label="Display type" labelPlacement="stacked" formControlName="displayType" interface="action-sheet">
+                  <ion-select-option *ngFor="let opt of displayTypeOptions" [value]="opt.value">
+                    {{ opt.label }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+            </div>
+          </section>
+
+          <section class="services-modal-block" aria-labelledby="svc-media">
+            <h3 id="svc-media" class="services-modal-block-title">Media</h3>
+            <p class="services-modal-block-hint">Upload a cover image and optional icon, or paste URLs when editing.</p>
+
+            <div class="services-modal-panel services-modal-panel--media" *ngIf="isEditMode">
+              <ion-item class="services-modal-item" lines="none">
+                <ion-input label="Image URL" labelPlacement="stacked" formControlName="imageUrl" inputmode="url"></ion-input>
+              </ion-item>
             </div>
 
-            <input
-              type="file"
-              accept="image/*"
-              (change)="onSelectIcon($event)"
-              [disabled]="isSubmitting"
-            />
+            <div class="services-modal-media-card">
+              <div class="services-modal-media-head">
+                <ion-icon name="image-outline" aria-hidden="true"></ion-icon>
+                <span>Cover image</span>
+              </div>
+              <div class="services-media-preview-wrap" *ngIf="imagePreviewUrl || form.value.imageUrl">
+                <div class="services-media-preview">
+                  <img [src]="imagePreviewUrl || form.value.imageUrl" alt="Service image preview" />
+                </div>
+              </div>
+              <label class="services-file-field">
+                <span class="services-file-field-label">Upload</span>
+                <span class="services-file-trigger-wrap">
+                  <input
+                    class="services-file-native"
+                    type="file"
+                    accept="image/*"
+                    (change)="onSelectImage($event)"
+                    [disabled]="isSubmitting"
+                  />
+                  <span class="services-file-trigger">
+                    <ion-icon name="cloud-upload-outline" aria-hidden="true"></ion-icon>
+                    Choose image file
+                  </span>
+                </span>
+              </label>
+              <ion-button
+                *ngIf="isEditMode && selectedService?.imageUrl"
+                class="services-media-remove"
+                size="small"
+                fill="outline"
+                color="danger"
+                expand="block"
+                [disabled]="isSubmitting || isDeletingImage"
+                (click)="deleteExistingImage()"
+              >
+                <ion-spinner *ngIf="isDeletingImage" name="crescent"></ion-spinner>
+                <span *ngIf="!isDeletingImage">Remove stored image</span>
+              </ion-button>
+            </div>
 
-            <ion-button
-              *ngIf="isEditMode && selectedService?.iconUrl"
-              size="small"
-              fill="outline"
-              color="danger"
-              [disabled]="isSubmitting || isDeletingIcon"
-              (click)="deleteExistingIcon()"
-            >
-              <ion-spinner *ngIf="isDeletingIcon" name="crescent"></ion-spinner>
-              <span *ngIf="!isDeletingIcon">Delete icon</span>
-            </ion-button>
-          </div>
+            <div class="services-modal-panel services-modal-panel--media" *ngIf="isEditMode">
+              <ion-item class="services-modal-item" lines="none">
+                <ion-input label="Icon URL" labelPlacement="stacked" formControlName="iconUrl" inputmode="url"></ion-input>
+              </ion-item>
+            </div>
 
-          <ion-item>
-            <ion-input label="Color Class" labelPlacement="stacked" formControlName="colorClass"></ion-input>
-          </ion-item>
+            <div class="services-modal-media-card">
+              <div class="services-modal-media-head">
+                <ion-icon name="apps-outline" aria-hidden="true"></ion-icon>
+                <span>Icon</span>
+              </div>
+              <div class="services-media-preview-wrap" *ngIf="iconPreviewUrl || form.value.iconUrl">
+                <div class="services-media-preview services-media-preview--icon">
+                  <img [src]="iconPreviewUrl || form.value.iconUrl" alt="Service icon preview" />
+                </div>
+              </div>
+              <label class="services-file-field">
+                <span class="services-file-field-label">Upload</span>
+                <span class="services-file-trigger-wrap">
+                  <input
+                    class="services-file-native"
+                    type="file"
+                    accept="image/*"
+                    (change)="onSelectIcon($event)"
+                    [disabled]="isSubmitting"
+                  />
+                  <span class="services-file-trigger">
+                    <ion-icon name="cloud-upload-outline" aria-hidden="true"></ion-icon>
+                    Choose icon file
+                  </span>
+                </span>
+              </label>
+              <ion-button
+                *ngIf="isEditMode && selectedService?.iconUrl"
+                class="services-media-remove"
+                size="small"
+                fill="outline"
+                color="danger"
+                expand="block"
+                [disabled]="isSubmitting || isDeletingIcon"
+                (click)="deleteExistingIcon()"
+              >
+                <ion-spinner *ngIf="isDeletingIcon" name="crescent"></ion-spinner>
+                <span *ngIf="!isDeletingIcon">Remove stored icon</span>
+              </ion-button>
+            </div>
+          </section>
 
-          <ion-item>
-            <ion-input label="Tag" labelPlacement="stacked" formControlName="tag"></ion-input>
-          </ion-item>
+          <section class="services-modal-block" aria-labelledby="svc-options">
+            <h3 id="svc-options" class="services-modal-block-title">Options</h3>
+            <p class="services-modal-block-hint">Tagging, theme class, and featured placement.</p>
+            <div class="services-modal-panel">
+              <ion-item class="services-modal-item" lines="none">
+                <ion-input label="Color class" labelPlacement="stacked" formControlName="colorClass" autocomplete="off"></ion-input>
+              </ion-item>
+              <ion-item class="services-modal-item" lines="none">
+                <ion-input label="Tag" labelPlacement="stacked" formControlName="tag" autocomplete="off"></ion-input>
+              </ion-item>
+              <ion-item class="services-modal-item services-modal-item--toggle" lines="none">
+                <ion-toggle formControlName="isPopular" justify="space-between">Mark as popular</ion-toggle>
+              </ion-item>
+            </div>
+          </section>
 
-          <ion-item lines="none">
-            <ion-toggle formControlName="isPopular">Popular</ion-toggle>
-          </ion-item>
-
-          <div class="submit-row">
-            <ion-button type="submit" expand="block" [disabled]="isSubmitting">
+          <div class="services-submit-row">
+            <ion-button class="services-submit-btn" type="submit" expand="block" size="large" [disabled]="isSubmitting">
               <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
-              <span *ngIf="!isSubmitting">{{ isEditMode ? 'Update' : 'Create' }}</span>
+              <span *ngIf="!isSubmitting">{{ isEditMode ? 'Save changes' : 'Create service' }}</span>
             </ion-button>
           </div>
         </form>

@@ -1,11 +1,97 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <app-header-menu-button></app-header-menu-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div class="ion-padding">
-    <ion-text color="medium">{{ description }}</ion-text>
+<ion-content class="partners-content" [fullscreen]="true">
+  <div class="partners-canvas" aria-hidden="true">
+    <div class="partners-canvas-glow partners-canvas-glow--1"></div>
+    <div class="partners-canvas-glow partners-canvas-glow--2"></div>
+    <div class="partners-canvas-mesh"></div>
+  </div>
+
+  <div class="partners-inner">
+    <article class="partners-hero">
+      <div class="partners-hero-inner">
+        <div class="partners-hero-top">
+          <span class="partners-hero-badge">Network</span>
+          <span class="partners-hero-version">Directory</span>
+        </div>
+        <h2 class="partners-hero-title">Partners</h2>
+        <p class="partners-hero-lead">{{ lead }}</p>
+      </div>
+    </article>
+
+    <div class="partners-metrics" role="group" aria-label="Partner summary">
+      <div
+        *ngFor="let s of stats"
+        class="partners-metric"
+        [class.partners-metric--a]="s.tone === 'a'"
+        [class.partners-metric--b]="s.tone === 'b'"
+        [class.partners-metric--c]="s.tone === 'c'"
+      >
+        <span class="partners-metric-value">{{ s.value }}</span>
+        <span class="partners-metric-label">{{ s.label }}</span>
+        <span class="partners-metric-hint">{{ s.hint }}</span>
+      </div>
+    </div>
+
+    <section class="partners-workers" aria-labelledby="workers-heading">
+      <header class="partners-workers-head">
+        <h3 id="workers-heading" class="partners-workers-title">Workers</h3>
+        <p class="partners-workers-sub">Dummy profiles — name, rating, role, and service area for UI reference.</p>
+      </header>
+
+      <ul class="partners-worker-list">
+        <li *ngFor="let w of workers; trackBy: trackByWorkerId" class="partners-worker-item">
+          <article
+            class="partners-worker-card"
+            [class.partners-worker-card--indigo]="w.tone === 'indigo'"
+            [class.partners-worker-card--violet]="w.tone === 'violet'"
+            [class.partners-worker-card--amber]="w.tone === 'amber'"
+          >
+            <div class="partners-worker-top">
+              <div class="partners-worker-avatar" aria-hidden="true">{{ initials(w.name) }}</div>
+              <div class="partners-worker-headline">
+                <div class="partners-worker-name-row">
+                  <h4 class="partners-worker-name">{{ w.name }}</h4>
+                  <span class="partners-worker-zone">{{ w.zone }}</span>
+                </div>
+                <p class="partners-worker-role">{{ w.role }}</p>
+                <div class="partners-worker-rating" [attr.aria-label]="w.rating + ' out of 5 stars, ' + w.reviewCount + ' reviews'">
+                  <div class="partners-worker-stars" aria-hidden="true">
+                    <ion-icon
+                      *ngFor="let slot of starSlots"
+                      [name]="starIcon(w.rating, slot)"
+                      class="partners-worker-star"
+                    ></ion-icon>
+                  </div>
+                  <span class="partners-worker-rating-num">{{ w.rating.toFixed(1) }}</span>
+                  <span class="partners-worker-reviews">({{ w.reviewCount }} reviews)</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="partners-worker-desc">{{ w.description }}</p>
+
+            <div class="partners-worker-meta">
+              <span class="partners-worker-meta-item">
+                <ion-icon name="checkmark-done-outline" aria-hidden="true"></ion-icon>
+                {{ w.completedJobs }} jobs completed
+              </span>
+              <span class="partners-worker-badge">Sample</span>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </section>
+
+    <p class="partners-foot">
+      Replace dummy workers with live partner API data, filters, and actions when your backend is connected.
+    </p>
   </div>
 </ion-content>

@@ -2,65 +2,269 @@
   display: block;
 }
 
-.section {
-  padding-bottom: 8px;
+.cancel-modal-content {
+  --background: var(--ion-background-color);
+  --padding-start: max(1rem, env(safe-area-inset-left));
+  --padding-end: max(1rem, env(safe-area-inset-right));
+  --padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
 }
 
-.kicker {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ion-color-medium);
+.cancel-hero-spacer {
+  height: 0.35rem;
+}
+
+.cancel-hero-spacer--sm {
+  height: 0.15rem;
+}
+
+.cancel-section {
+  margin-bottom: 1.25rem;
+}
+
+.cancel-section--summary {
+  margin-top: 0;
+}
+
+.cancel-section-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 10px;
+  color: color-mix(in srgb, var(--ion-text-color) 55%, var(--ion-color-medium));
 }
 
-.booking-row {
+.cancel-section-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: var(--ion-color-medium);
+  line-height: 1.35;
+}
+
+/* Summary glass card — matches approve modal */
+.cancel-glass-card {
+  padding: 1.1rem 1.15rem;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--ion-card-background, #fff) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 18%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 45%, transparent) inset,
+    0 14px 40px -24px color-mix(in srgb, var(--ion-color-dark) 25%, transparent);
+  overflow: visible;
+}
+
+.cancel-card-kicker {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ion-color-primary);
+  margin-bottom: 0.65rem;
+}
+
+.cancel-booking-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  min-width: 0;
 }
 
-.id {
+.cancel-booking-id {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ion-text-color);
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-inline-end: 0.25rem;
+}
+
+.cancel-status-badge {
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 0.65rem;
   font-weight: 700;
+  padding: 0.35rem 0.6rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  --padding-start: 10px;
+  --padding-end: 10px;
 }
 
-.muted {
+.cancel-booking-line,
+.cancel-booking-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--ion-text-color) 75%, var(--ion-color-medium));
+}
+
+.cancel-booking-line ion-icon,
+.cancel-booking-address ion-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  font-size: 1.1rem;
   color: var(--ion-color-medium);
 }
 
-.address {
-  margin-top: 6px;
-  font-size: 13px;
+.cancel-booking-address {
+  margin-top: 0.5rem;
+  font-size: 0.84rem;
 }
 
-.cta {
-  margin-top: 14px;
+.cancel-dot {
+  opacity: 0.45;
+  padding: 0 0.15rem;
 }
 
-.pair {
+/* Textarea */
+.cancel-textarea {
+  --background: color-mix(in srgb, var(--ion-item-background) 95%, var(--ion-background-color));
+  --border-radius: 14px;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  margin-bottom: 0.25rem;
+}
+
+.cancel-cta {
+  padding-top: 0.85rem;
+}
+
+.cancel-continue-btn,
+.cancel-submit-btn {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  --box-shadow: 0 8px 24px color-mix(in srgb, var(--ion-color-danger) 35%, transparent);
+}
+
+/* Confirm */
+.cancel-confirm-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.cancel-confirm-panel {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 16%, transparent);
+  background: color-mix(in srgb, var(--ion-card-background, #fff) 95%, transparent);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--ion-color-dark) 8%, transparent);
+}
+
+.cancel-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  background: color-mix(in srgb, var(--ion-color-primary) 8%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ion-color-medium) 12%, transparent);
+}
+
+.cancel-panel-header--danger {
+  background: color-mix(in srgb, var(--ion-color-danger) 10%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--ion-color-danger) 18%, transparent);
+}
+
+.cancel-panel-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
   display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 10px;
-  padding: 8px 0;
+  place-items: center;
 }
 
-.label {
-  color: var(--ion-color-medium);
-  font-size: 12px;
+.cancel-panel-header--danger .cancel-panel-icon {
+  background: color-mix(in srgb, var(--ion-color-danger) 22%, transparent);
+  color: var(--ion-color-danger);
 }
 
-.value {
-  font-size: 14px;
+.cancel-panel-header:not(.cancel-panel-header--danger) .cancel-panel-icon.cancel-panel-icon--customer {
+  background: color-mix(in srgb, var(--ion-color-tertiary) 16%, transparent);
+  color: var(--ion-color-tertiary);
+}
+
+.cancel-panel-icon ion-icon {
+  font-size: 1.2rem;
+}
+
+.cancel-panel-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ion-text-color);
+}
+
+.cancel-reason-block {
+  padding: 1rem 1rem 1.1rem;
+}
+
+.cancel-reason-text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ion-text-color);
+  white-space: pre-wrap;
   word-break: break-word;
 }
 
-.reason {
-  white-space: pre-wrap;
+.cancel-dl {
+  margin: 0;
+  padding: 0.35rem 1rem 0.85rem;
 }
 
-ion-spinner {
-  margin-right: 10px;
+.cancel-dl-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.65rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ion-color-medium) 10%, transparent);
 }
 
+.cancel-dl-row:last-child {
+  border-bottom: none;
+}
+
+.cancel-dl dt {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ion-color-medium);
+}
+
+.cancel-dl dd {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--ion-text-color);
+  word-break: break-word;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cancel-glass-card {
+    background: color-mix(in srgb, var(--ion-card-background) 78%, transparent);
+    box-shadow:
+      0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
+      0 18px 48px -28px rgba(0, 0, 0, 0.55);
+  }
+
+  .cancel-confirm-panel {
+    background: color-mix(in srgb, var(--ion-card-background) 88%, transparent);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+}

@@ -2,12 +2,103 @@
   display: block;
 }
 
-.filters {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: var(--ion-background-color, #fff);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+// Status filter lives in ion-header (not ion-content), so it is never clipped by the content scroller.
+// Picker uses action-sheet: full labels, thumb-friendly targets on small screens.
+
+.booking-filter-toolbar {
+  --min-height: 52px;
+  --padding-top: 2px;
+  --padding-bottom: 4px;
+}
+
+.booking-filter-item {
+  --background: transparent;
+  --inner-padding-end: 0;
+  --padding-start: max(0.5rem, env(safe-area-inset-left));
+  --padding-end: max(0.5rem, env(safe-area-inset-right));
+  --min-height: 48px;
+  width: 100%;
+}
+
+.booking-filter-icon {
+  color: var(--ion-color-medium);
+  font-size: 1.25rem;
+  margin-inline-end: 4px;
+}
+
+.booking-status-select {
+  width: 100%;
+  max-width: 100%;
+  font-weight: 600;
+}
+
+.bookings-list {
+  padding-inline: max(0.75rem, env(safe-area-inset-left)) max(0.75rem, env(safe-area-inset-right));
+}
+
+.pagination {
+  display: block;
+  padding-inline: max(0.75rem, env(safe-area-inset-left)) max(0.75rem, env(safe-area-inset-right));
+  padding-top: 0.5rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 14px;
+  background: var(--ion-item-background, var(--ion-background-color));
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 20%, transparent);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--ion-color-dark) 8%, transparent);
+}
+
+.pagination-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.pagination-page {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ion-text-color);
+  line-height: 1.2;
+}
+
+.pagination-total {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--ion-color-medium);
+  line-height: 1.2;
+}
+
+.pagination-nav-btn {
+  margin: 0;
+  flex-shrink: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.pagination-nav-btn ion-icon {
+  font-size: 1.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pagination-bar {
+    border-color: color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
 }
 
 .meta {
@@ -89,22 +180,32 @@
 
     .service-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
+      justify-content: space-between;
       gap: 8px;
       margin-bottom: 4px;
+      min-width: 0;
 
       .service-title {
         margin: 0;
         font-size: 15px;
         font-weight: 600;
         color: var(--ion-color-dark);
+        min-width: 0;
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-top: 1px;
       }
 
       .status-badge {
         font-size: 10px;
-        padding: 2px 6px;
+        padding: 3px 7px;
         text-transform: uppercase;
         flex-shrink: 0;
+        line-height: 1.25;
+        white-space: nowrap;
       }
     }
 
@@ -179,52 +280,3 @@
   margin-top: 10px;
 }
 
-// Bottom navigation styles
-
-// Mobile-specific styles for filters
-@media (max-width: 768px) {
-  .filters {
-    ion-searchbar {
-      --placeholder-color: var(--ion-color-medium);
-      --placeholder-opacity: 0.7;
-      
-      .searchbar-input {
-        font-size: 14px !important;
-      }
-      
-      .searchbar-placeholder {
-        font-size: 13px !important;
-      }
-    }
-  }
-
-  .filters-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-    scrollbar-width: none; // Firefox
-    -ms-overflow-style: none; // IE/Edge
-    margin-right: calc(-1 * var(--ion-padding, 16px));
-
-    &::-webkit-scrollbar {
-      display: none; // Chrome/Safari
-    }
-
-    ion-segment {
-      width: max-content;
-      min-width: 100%;
-      margin: 0;
-      padding: 0;
-    }
-
-    ion-segment-button {
-      flex-shrink: 0;
-      min-width: fit-content;
-      
-      ion-label {
-        font-size: 13px;
-        white-space: nowrap;
-      }
-    }
-  }
-}

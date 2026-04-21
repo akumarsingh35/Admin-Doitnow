@@ -1,33 +1,61 @@
-<ion-header>
+<ion-header class="settings-drawer-header">
   <ion-toolbar>
-    <ion-title>Settings</ion-title>
+    <ion-title>Menu</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()">
+      <ion-button fill="clear" (click)="dismiss()" aria-label="Close menu">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-list lines="full">
-    <ion-item button (click)="navigateToRoles()">
-      <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-      <ion-label>Roles</ion-label>
-      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-    </ion-item>
+<ion-content class="settings-drawer-content" [fullscreen]="true">
+  <div class="settings-drawer-hero">
+    <div class="settings-drawer-avatar" aria-hidden="true">
+      <ion-icon name="apps-outline"></ion-icon>
+    </div>
+    <div class="settings-drawer-hero-text">
+      <p class="settings-drawer-kicker">Admin console</p>
+      <p class="settings-drawer-lead">Jump to any area of the panel</p>
+    </div>
+  </div>
 
-    <ion-item button (click)="navigateToAnalytics()">
-      <ion-icon slot="start" name="bar-chart-outline"></ion-icon>
-      <ion-label>Analytics</ion-label>
-      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
-    </ion-item>
-  </ion-list>
+  <ng-container *ngFor="let section of menuSections">
+    <ion-list class="settings-menu-block" lines="none">
+      <ion-list-header class="settings-menu-section-title">
+        <ion-label>{{ section.title }}</ion-label>
+      </ion-list-header>
 
-  <ion-list lines="full" class="logout-section">
-    <ion-item button color="danger" (click)="logout()">
-      <ion-icon slot="start" name="log-out-outline"></ion-icon>
-      <ion-label color="danger">Logout</ion-label>
-    </ion-item>
-  </ion-list>
+      <ion-item
+        *ngFor="let item of section.items"
+        class="settings-menu-item"
+        button="true"
+        [detail]="true"
+        lines="none"
+        (click)="navigate(item.path)"
+      >
+        <div class="settings-item-icon" slot="start" aria-hidden="true">
+          <ion-icon [name]="item.icon"></ion-icon>
+        </div>
+        <ion-label class="settings-item-label">
+          <h3 class="settings-item-title">{{ item.label }}</h3>
+          <p class="settings-item-desc" *ngIf="item.description">{{ item.description }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-container>
+
+  <div class="settings-drawer-footer">
+    <ion-button
+      class="settings-logout-btn"
+      expand="block"
+      fill="outline"
+      color="danger"
+      shape="round"
+      (click)="logout()"
+    >
+      <ion-icon slot="start" name="log-out-outline" aria-hidden="true"></ion-icon>
+      Sign out
+    </ion-button>
+  </div>
 </ion-content>

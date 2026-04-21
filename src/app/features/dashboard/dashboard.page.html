@@ -2,10 +2,26 @@
   <ion-toolbar>
     <ion-title>{{ title }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="openSettings()">
-        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
-      </ion-button>
+      <app-header-menu-button></app-header-menu-button>
     </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar class="booking-filter-toolbar">
+    <ion-item lines="none" class="booking-filter-item">
+      <ion-icon class="booking-filter-icon" name="funnel-outline" slot="start" aria-hidden="true"></ion-icon>
+      <ion-select
+        class="booking-status-select"
+        label="Status"
+        labelPlacement="start"
+        aria-label="Booking status filter"
+        [(ngModel)]="status"
+        interface="action-sheet"
+        [interfaceOptions]="statusSelectInterfaceOptions"
+        (ionChange)="onStatusChange($any($event.detail.value))"
+      >
+        <ion-select-option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</ion-select-option>
+      </ion-select>
+    </ion-item>
   </ion-toolbar>
 </ion-header>
 
@@ -13,15 +29,6 @@
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-
-  <!-- Filters -->
-  <div class="filters ion-padding">
-    <ion-segment [(ngModel)]="status" (ionChange)="onStatusChange($any($event.detail.value))">
-      <ion-segment-button *ngFor="let opt of statusOptions" [value]="opt.value">
-        <ion-label>{{ opt.label }}</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </div>
 
   <!-- Loading -->
   <div *ngIf="isLoading" class="ion-padding ion-text-center">
@@ -35,7 +42,7 @@
   </div>
 
   <!-- Bookings List -->
-  <ion-list *ngIf="!isLoading && bookings.length > 0" lines="full">
+  <ion-list *ngIf="!isLoading && bookings.length > 0" class="bookings-list" lines="full">
     <ion-item *ngFor="let booking of bookings; trackBy: trackByBookingId" class="booking-item compact">
       <div class="booking-row">
         <!-- Left Content -->
@@ -82,21 +89,44 @@
   </ion-list>
 
   <!-- Pagination -->
-  <div *ngIf="!isLoading && bookings.length > 0" class="pagination ion-padding">
-    <ion-button
-      fill="clear"
-      [disabled]="currentPage <= 1 || isLoading"
-      (click)="previousPage()"
-    >
-      Previous
-    </ion-button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-    <ion-button
-      fill="clear"
-      [disabled]="currentPage >= totalPages || isLoading"
-      (click)="nextPage()"
-    >
-      Next
-    </ion-button>
-  </div>
+  <nav
+    *ngIf="!isLoading && bookings.length > 0"
+    class="pagination"
+    aria-label="Bookings list pages"
+  >
+    <div class="pagination-bar">
+      <ion-button
+        class="pagination-nav-btn"
+        type="button"
+        fill="outline"
+        color="primary"
+        shape="round"
+        size="small"
+        [disabled]="currentPage <= 1 || isLoading"
+        (click)="previousPage()"
+        aria-label="Previous page"
+      >
+        <ion-icon slot="icon-only" name="chevron-back-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+
+      <div class="pagination-info">
+        <span class="pagination-page">Page {{ currentPage }} of {{ totalPages }}</span>
+        <span class="pagination-total" *ngIf="total > 0">{{ total }} result{{ total === 1 ? '' : 's' }}</span>
+      </div>
+
+      <ion-button
+        class="pagination-nav-btn"
+        type="button"
+        fill="outline"
+        color="primary"
+        shape="round"
+        size="small"
+        [disabled]="currentPage >= totalPages || isLoading"
+        (click)="nextPage()"
+        aria-label="Next page"
+      >
+        <ion-icon slot="icon-only" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </div>
+  </nav>
 </ion-content>

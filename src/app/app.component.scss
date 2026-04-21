@@ -1,3 +1,54 @@
+/* End drawer: single disclosure from ion-item — never add slot="end" chevrons here */
+ion-menu .settings-menu-list ion-item {
+  --detail-icon-color: var(--ion-color-medium);
+  --detail-icon-opacity: 0.45;
+  --min-height: 64px;
+}
+
+.app-menu-content {
+  --padding-top: 8px;
+  --padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+.app-menu-section {
+  background: transparent;
+  margin-bottom: 8px;
+}
+
+.app-menu-list-header {
+  min-height: auto;
+  padding-inline: 16px;
+  padding-top: 8px;
+  padding-bottom: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ion-text-color) 45%, var(--ion-color-medium));
+}
+
+.app-menu-list-header ion-label {
+  margin: 0;
+}
+
+ion-menu .settings-menu-list ion-item ion-label h3 {
+  margin: 0 0 2px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+ion-menu .settings-menu-list ion-item ion-label p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+}
+
+.app-menu-logout {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
+}
 
 .app-bottom-nav {
   position: fixed;

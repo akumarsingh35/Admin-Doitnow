@@ -1,30 +1,90 @@
 <ion-app>
-  <ion-menu menuId="settings-menu" side="end" contentId="main-content" type="overlay">
+  <ion-menu menuId="settings-menu" side="end" contentId="main-content" type="overlay" class="app-end-menu">
     <ion-header>
       <ion-toolbar>
-        <ion-title>Settings</ion-title>
+        <ion-title>Menu</ion-title>
       </ion-toolbar>
     </ion-header>
 
-    <ion-content>
-      <ion-list lines="full">
-        <ion-item button (click)="navigateTo('/roles')">
-          <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-          <ion-label>Roles</ion-label>
-          <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+    <ion-content class="app-menu-content">
+      <ion-list lines="none" class="settings-menu-list app-menu-section">
+        <ion-list-header class="app-menu-list-header">
+          <ion-label>Workspace</ion-label>
+        </ion-list-header>
+        <ion-item button [detail]="true" (click)="navigateTo('/dashboard')">
+          <ion-icon slot="start" name="calendar-outline" aria-hidden="true"></ion-icon>
+          <ion-label>
+            <h3>Bookings</h3>
+            <p>Approve, reject, paginate</p>
+          </ion-label>
         </ion-item>
-
-        <ion-item button (click)="navigateTo('/reports')">
-          <ion-icon slot="start" name="bar-chart-outline"></ion-icon>
-          <ion-label>Analytics</ion-label>
-          <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+        <ion-item button [detail]="true" (click)="navigateTo('/requests')">
+          <ion-icon slot="start" name="git-network-outline" aria-hidden="true"></ion-icon>
+          <ion-label>
+            <h3>Requests</h3>
+            <p>Transactions & workflows</p>
+          </ion-label>
         </ion-item>
       </ion-list>
 
-      <ion-list lines="full">
-        <ion-item button color="danger" (click)="logout()">
-          <ion-icon slot="start" name="log-out-outline"></ion-icon>
-          <ion-label color="danger">Logout</ion-label>
+      <ion-list lines="none" class="settings-menu-list app-menu-section">
+        <ion-list-header class="app-menu-list-header">
+          <ion-label>Directory</ion-label>
+        </ion-list-header>
+        <ion-item button [detail]="true" (click)="navigateTo('/users')">
+          <ion-icon slot="start" name="people-circle-outline" aria-hidden="true"></ion-icon>
+          <ion-label>
+            <h3>Users</h3>
+            <p>Customer accounts</p>
+          </ion-label>
+        </ion-item>
+        <ion-item button [detail]="true" (click)="navigateTo('/partners')">
+          <ion-icon slot="start" name="business-outline" aria-hidden="true"></ion-icon>
+          <ion-label>
+            <h3>Partners</h3>
+            <p>Network & lifecycle</p>
+          </ion-label>
+        </ion-item>
+        <ion-item button [detail]="true" (click)="navigateTo('/services')">
+          <ion-icon slot="start" name="cube-outline" aria-hidden="true"></ion-icon>
+          <ion-label>
+            <h3>Services</h3>
+            <p>Catalog & pricing</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-list lines="none" class="settings-menu-list app-menu-section">
+        <ion-list-header class="app-menu-list-header">
+          <ion-label>Administration</ion-label>
+        </ion-list-header>
+        <ion-item button [detail]="true" (click)="navigateTo('/roles')">
+          <ion-icon slot="start" name="shield-checkmark-outline" aria-hidden="true"></ion-icon>
+          <ion-label>
+            <h3>Roles & access</h3>
+            <p>Permissions</p>
+          </ion-label>
+        </ion-item>
+        <ion-item button [detail]="true" (click)="navigateTo('/reports')">
+          <ion-icon slot="start" name="bar-chart-outline" aria-hidden="true"></ion-icon>
+          <ion-label>
+            <h3>Analytics</h3>
+            <p>Reports & KPIs</p>
+          </ion-label>
+        </ion-item>
+        <ion-item button [detail]="true" (click)="navigateTo('/settings')">
+          <ion-icon slot="start" name="settings-outline" aria-hidden="true"></ion-icon>
+          <ion-label>
+            <h3>App settings</h3>
+            <p>Preferences</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-list lines="none" class="app-menu-section app-menu-logout">
+        <ion-item button [detail]="false" color="danger" (click)="logout()">
+          <ion-icon slot="start" name="log-out-outline" aria-hidden="true"></ion-icon>
+          <ion-label color="danger">Sign out</ion-label>
         </ion-item>
       </ion-list>
     </ion-content>

@@ -2,84 +2,408 @@
   display: block;
 }
 
-.section {
-  padding-bottom: 8px;
+.approve-modal-content {
+  --background: var(--ion-background-color);
+  --padding-start: max(1rem, env(safe-area-inset-left));
+  --padding-end: max(1rem, env(safe-area-inset-right));
+  --padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
 }
 
-.kicker {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ion-color-medium);
+.approve-hero-spacer {
+  height: 0.35rem;
+}
+
+.approve-hero-spacer--sm {
+  height: 0.15rem;
+}
+
+.approve-section {
+  margin-bottom: 1.25rem;
+}
+
+.approve-section--summary {
+  margin-top: 0;
+}
+
+.approve-section-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 10px;
+  color: color-mix(in srgb, var(--ion-text-color) 55%, var(--ion-color-medium));
 }
 
-.booking-row {
+.approve-section-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+  color: var(--ion-color-medium);
+  line-height: 1.35;
+}
+
+/* Summary glass card */
+.approve-glass-card {
+  padding: 1.1rem 1.15rem;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--ion-card-background, #fff) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 18%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 45%, transparent) inset,
+    0 14px 40px -24px color-mix(in srgb, var(--ion-color-dark) 25%, transparent);
+  overflow: visible;
+}
+
+.approve-card-kicker {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ion-color-primary);
+  margin-bottom: 0.65rem;
+}
+
+.approve-booking-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  min-width: 0;
 }
 
-.id {
+.approve-booking-id {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ion-text-color);
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-inline-end: 0.25rem;
+}
+
+.approve-status-badge {
+  flex-shrink: 0;
+  align-self: center;
+  font-size: 0.65rem;
   font-weight: 700;
+  padding: 0.35rem 0.6rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  --padding-start: 10px;
+  --padding-end: 10px;
 }
 
-.muted {
+.approve-booking-line,
+.approve-booking-address {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--ion-text-color) 75%, var(--ion-color-medium));
+}
+
+.approve-booking-line ion-icon,
+.approve-booking-address ion-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  font-size: 1.1rem;
   color: var(--ion-color-medium);
 }
 
-.address {
-  margin-top: 6px;
-  font-size: 13px;
+.approve-booking-address {
+  margin-top: 0.5rem;
+  font-size: 0.84rem;
 }
 
-.partner-row {
+.approve-dot {
+  opacity: 0.45;
+  padding: 0 0.15rem;
+}
+
+/* Search */
+.approve-searchbar {
+  --background: color-mix(in srgb, var(--ion-item-background) 95%, var(--ion-background-color));
+  --border-radius: 14px;
+  --box-shadow: none;
+  --icon-color: var(--ion-color-medium);
+  padding: 0;
+}
+
+.approve-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  padding: 2rem 1rem;
+  color: var(--ion-color-medium);
+  font-size: 0.88rem;
+}
+
+/* Partner list */
+.approve-partner-list {
+  background: transparent;
+  padding: 0;
+}
+
+.approve-partner-item {
+  --background: color-mix(in srgb, var(--ion-card-background, #fff) 92%, transparent);
+  --border-color: color-mix(in srgb, var(--ion-color-medium) 14%, transparent);
+  --border-width: 1px;
+  --border-style: solid;
+  --border-radius: 16px;
+  --padding-start: 12px;
+  --padding-end: 10px;
+  --inner-padding-end: 8px;
+  --min-height: 72px;
+  margin-bottom: 0.65rem;
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--ion-color-dark) 6%, transparent);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.approve-partner-item:active {
+  transform: scale(0.992);
+}
+
+.approve-partner-avatar {
+  flex-shrink: 0;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--ion-color-primary) 18%, transparent),
+    color-mix(in srgb, var(--ion-color-primary) 6%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--ion-color-primary) 25%, transparent);
+}
+
+.approve-partner-avatar ion-icon {
+  font-size: 1.35rem;
+  color: var(--ion-color-primary);
+}
+
+.approve-partner-label {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+.approve-partner-top {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 10px;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
 }
 
-.name {
+.approve-partner-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ion-text-color);
+}
+
+.approve-partner-id {
+  flex-shrink: 0;
+  font-size: 0.75rem;
   font-weight: 600;
+  color: var(--ion-color-medium);
 }
 
-.chips {
+.approve-partner-phone {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+  margin-bottom: 0.35rem;
+}
+
+.approve-partner-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 0.35rem;
   align-items: center;
 }
 
-.pair {
-  display: grid;
-  grid-template-columns: 90px 1fr;
-  gap: 10px;
-  padding: 8px 0;
+.approve-chip {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.45rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ion-color-medium) 12%, transparent);
+  color: var(--ion-color-medium-shade, var(--ion-color-medium));
 }
 
-.label {
+.approve-chip-more {
+  font-size: 0.65rem;
+  font-weight: 600;
   color: var(--ion-color-medium);
-  font-size: 12px;
 }
 
-.value {
-  font-size: 14px;
+.approve-partner-chevron {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  color: var(--ion-color-medium);
+  opacity: 0.4;
+}
+
+.approve-empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem 1rem;
+}
+
+.approve-empty ion-icon {
+  font-size: 2.5rem;
+  color: var(--ion-color-medium);
+  opacity: 0.35;
+  margin-bottom: 0.75rem;
+}
+
+.approve-empty p {
+  margin: 0 0 0.35rem;
+  font-weight: 600;
+  color: var(--ion-text-color);
+}
+
+.approve-empty-hint {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+/* Confirm step */
+.approve-confirm-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.approve-confirm-panel {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 16%, transparent);
+  background: color-mix(in srgb, var(--ion-card-background, #fff) 95%, transparent);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--ion-color-dark) 8%, transparent);
+}
+
+.approve-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  background: color-mix(in srgb, var(--ion-color-primary) 8%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ion-color-medium) 12%, transparent);
+}
+
+.approve-panel-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--ion-color-primary) 18%, transparent);
+  color: var(--ion-color-primary);
+}
+
+.approve-panel-icon--customer {
+  background: color-mix(in srgb, var(--ion-color-tertiary) 16%, transparent);
+  color: var(--ion-color-tertiary);
+}
+
+.approve-panel-icon ion-icon {
+  font-size: 1.2rem;
+}
+
+.approve-panel-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ion-text-color);
+}
+
+.approve-dl {
+  margin: 0;
+  padding: 0.35rem 1rem 0.85rem;
+}
+
+.approve-dl-row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.65rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ion-color-medium) 10%, transparent);
+}
+
+.approve-dl-row:last-child {
+  border-bottom: none;
+}
+
+.approve-dl dt {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ion-color-medium);
+}
+
+.approve-dl dd {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--ion-text-color);
   word-break: break-word;
 }
 
-.cta {
-  margin-top: 14px;
+.approve-price {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ion-color-primary);
 }
 
-.state {
-  text-align: center;
+.approve-cta {
+  padding-top: 0.25rem;
 }
 
-ion-spinner {
-  margin-right: 10px;
+.approve-submit-btn {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  --box-shadow: 0 8px 24px color-mix(in srgb, var(--ion-color-primary) 38%, transparent);
 }
 
+@media (prefers-color-scheme: dark) {
+  .approve-glass-card {
+    background: color-mix(in srgb, var(--ion-card-background) 78%, transparent);
+    box-shadow:
+      0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
+      0 18px 48px -28px rgba(0, 0, 0, 0.55);
+  }
+
+  .approve-partner-item {
+    --background: color-mix(in srgb, var(--ion-card-background) 85%, transparent);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .approve-confirm-panel {
+    background: color-mix(in srgb, var(--ion-card-background) 88%, transparent);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .approve-partner-item {
+    transition: none;
+  }
+
+  .approve-partner-item:active {
+    transform: none;
+  }
+}

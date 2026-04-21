@@ -39,3 +39,70 @@
 ion-content {
     --padding-bottom: 200px;
 }
+
+/* --------------------------------------------------------------------------
+ * App header — primary title bar + neutral secondary toolbars
+ * -------------------------------------------------------------------------- */
+
+ion-header {
+    z-index: 20;
+}
+
+/* Main title row: brand gradient, light foreground */
+ion-header > ion-toolbar:first-of-type {
+    --background: linear-gradient(
+        135deg,
+        var(--ion-color-primary) 0%,
+        color-mix(in srgb, var(--ion-color-primary) 72%, var(--ion-color-primary-shade)) 100%
+    );
+    --color: #ffffff;
+    --border-width: 0;
+    --min-height: 52px;
+    --padding-top: env(safe-area-inset-top);
+    box-shadow: 0 4px 18px color-mix(in srgb, var(--ion-color-primary) 38%, transparent);
+}
+
+ion-header > ion-toolbar:first-of-type ion-title {
+    font-weight: 700;
+    font-size: 1.0625rem;
+    letter-spacing: -0.03em;
+}
+
+/* Buttons on primary toolbar: readable on gradient */
+ion-header > ion-toolbar:first-of-type ion-button {
+    --color: #ffffff;
+    --background: rgba(255, 255, 255, 0.16);
+    --background-activated: rgba(255, 255, 255, 0.28);
+    --background-focused: rgba(255, 255, 255, 0.22);
+    --border-width: 0;
+    --box-shadow: none;
+    font-weight: 600;
+    text-transform: none;
+}
+
+ion-header > ion-toolbar:first-of-type ion-button:has(ion-icon[slot="icon-only"]) {
+    --background: transparent;
+    --background-activated: rgba(255, 255, 255, 0.18);
+}
+
+/* Secondary rows (filters, etc.): stay on neutral surface */
+ion-header > ion-toolbar:not(:first-of-type) {
+    --background: var(--app-bg-elevated, var(--ion-toolbar-background));
+    --color: var(--ion-text-color);
+    --border-width: 0 0 1px 0;
+    --border-color: color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
+    --min-height: auto;
+    box-shadow: none;
+}
+
+ion-header > ion-toolbar:not(:first-of-type) ion-button {
+    --color: var(--ion-color-primary);
+    --background: transparent;
+    --background-activated: color-mix(in srgb, var(--ion-color-primary) 14%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+    ion-header > ion-toolbar:first-of-type {
+        box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+    }
+}

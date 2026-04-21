@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { MenuController, ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { Subject, firstValueFrom } from 'rxjs';
 
 import {
@@ -26,6 +26,12 @@ export class DashboardPage implements OnInit, OnDestroy {
     { value: 'CANCELLED_BY_ADMIN', label: 'Cancelled (Admin)' },
     { value: 'CANCELLED_BY_USER', label: 'Cancelled (User)' },
   ];
+
+  /** Action sheet shown when picking status — avoids horizontal tab clipping inside scroll views. */
+  readonly statusSelectInterfaceOptions = {
+    header: 'Filter by status',
+    subHeader: 'Choose which bookings to show',
+  };
   readonly statusLabel: Record<BookingStatus, string> = {
     PENDING: 'Pending',
     CONFIRMED: 'Confirmed',
@@ -54,7 +60,6 @@ export class DashboardPage implements OnInit, OnDestroy {
     private readonly adminBookingService: AdminBookingService,
     private readonly modalController: ModalController,
     private readonly toastController: ToastController,
-    private readonly menuController: MenuController,
     private readonly cdr: ChangeDetectorRef,
   ) {}
 
@@ -200,7 +205,4 @@ export class DashboardPage implements OnInit, OnDestroy {
     await toast.present();
   }
 
-  async openSettings(): Promise<void> {
-    await this.menuController.open('settings-menu');
-  }
 }

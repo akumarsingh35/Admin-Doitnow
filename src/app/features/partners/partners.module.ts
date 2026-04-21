@@ -1,9 +1,7 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 
-import { IonicModule } from '@ionic/angular';
+import { SharedModule } from '../../shared/shared.module';
 
 import { PartnersPage } from './partners.page';
 
@@ -15,12 +13,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    RouterModule.forChild(routes),
-  ],
+  imports: [SharedModule, RouterModule.forChild(routes)],
   declarations: [PartnersPage],
 })
 export class PartnersModule {}

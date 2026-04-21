@@ -1,112 +1,166 @@
-<ion-header>
+<ion-header class="approve-modal-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="back()">Back</ion-button>
+      <ion-button fill="clear" (click)="back()" aria-label="Back">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
     <ion-title>Approve booking</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()">Close</ion-button>
+      <ion-button fill="clear" (click)="dismiss()" aria-label="Close">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="approve-modal-content" [fullscreen]="true">
   <ng-container *ngIf="step === 'select_partner'">
-    <div class="section ion-padding">
-      <div class="kicker">Booking</div>
-      <div class="booking-row">
-        <div class="id">#{{ booking.id }}</div>
-        <ion-badge color="warning" *ngIf="booking.status === 'PENDING'">Pending</ion-badge>
-      </div>
-      <div class="muted">{{ booking.user?.fullName || 'Customer' }} • {{ bookingCustomerPhone() }}</div>
-      <div class="muted address">{{ bookingAddressText() }}</div>
-    </div>
+    <div class="approve-hero-spacer" aria-hidden="true"></div>
 
-    <div class="section ion-padding">
-      <div class="kicker">Select partner</div>
+    <section class="approve-section approve-section--summary" aria-label="Booking summary">
+      <div class="approve-glass-card">
+        <div class="approve-card-kicker">Booking</div>
+        <div class="approve-booking-head">
+          <span class="approve-booking-id">#{{ booking.id }}</span>
+          <ion-badge color="warning" class="approve-status-badge" *ngIf="booking.status === 'PENDING'">Pending</ion-badge>
+        </div>
+        <p class="approve-booking-line">
+          <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+          {{ booking.user?.fullName || 'Customer' }}
+          <span class="approve-dot">•</span>
+          {{ bookingCustomerPhone() }}
+        </p>
+        <p class="approve-booking-address">
+          <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+          {{ bookingAddressText() }}
+        </p>
+      </div>
+    </section>
+
+    <section class="approve-section">
+      <h2 class="approve-section-title">Select partner</h2>
+      <p class="approve-section-hint">Search by name, ID, phone, or services</p>
       <ion-searchbar
-        placeholder="Search partner (name, id, phone, services)"
+        class="approve-searchbar"
+        placeholder="Search partners…"
         inputmode="search"
         [debounce]="0"
         (ionInput)="onSearchChange($any($event.detail.value))"
       ></ion-searchbar>
+    </section>
+
+    <div class="approve-loading" *ngIf="isLoadingPartners && partners.length === 0">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <span>Loading partners…</span>
     </div>
 
-    <ion-list lines="full">
-      <ion-item button *ngFor="let partner of partners; trackBy: trackByPartnerId" (click)="selectPartner(partner)">
-        <ion-label class="ion-text-wrap">
-          <div class="partner-row">
-            <div class="name">{{ partner.name || 'Partner' }}</div>
-            <div class="muted">#{{ partner.id }}</div>
+    <ion-list class="approve-partner-list" lines="none">
+      <ion-item
+        class="approve-partner-item"
+        button
+        detail="false"
+        lines="none"
+        *ngFor="let partner of partners; trackBy: trackByPartnerId"
+        (click)="selectPartner(partner)"
+      >
+        <div class="approve-partner-avatar" slot="start" aria-hidden="true">
+          <ion-icon name="storefront-outline"></ion-icon>
+        </div>
+        <ion-label class="approve-partner-label">
+          <div class="approve-partner-top">
+            <span class="approve-partner-name">{{ partner.name || 'Partner' }}</span>
+            <span class="approve-partner-id">#{{ partner.id }}</span>
           </div>
-          <div class="muted">{{ partner.phone || '—' }}</div>
-          <div class="chips" *ngIf="partner.services?.length">
-            <ion-chip *ngFor="let s of partner.services | slice:0:4">
-              <ion-label>{{ s }}</ion-label>
-            </ion-chip>
-            <ion-text color="medium" *ngIf="(partner.services?.length || 0) > 4">+{{ (partner.services?.length || 0) - 4 }}</ion-text>
+          <div class="approve-partner-phone">{{ partner.phone || '—' }}</div>
+          <div class="approve-partner-chips" *ngIf="partner.services?.length">
+            <span class="approve-chip" *ngFor="let s of partner.services | slice:0:4">{{ s }}</span>
+            <span class="approve-chip-more" *ngIf="(partner.services?.length || 0) > 4">
+              +{{ (partner.services?.length || 0) - 4 }}
+            </span>
           </div>
         </ion-label>
+        <ion-icon slot="end" class="approve-partner-chevron" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
       </ion-item>
     </ion-list>
 
-    <div class="state ion-padding" *ngIf="!isLoadingPartners && partners.length === 0">
-      <ion-text color="medium">No partners found.</ion-text>
+    <div class="approve-empty" *ngIf="!isLoadingPartners && partners.length === 0">
+      <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+      <p>No partners found</p>
+      <ion-text color="medium"><p class="approve-empty-hint">Try another search term</p></ion-text>
     </div>
 
     <ion-infinite-scroll [disabled]="!partnersHasMore" threshold="150px" (ionInfinite)="loadMorePartners($event)">
-      <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading partners...">
-      </ion-infinite-scroll-content>
+      <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading more…"></ion-infinite-scroll-content>
     </ion-infinite-scroll>
   </ng-container>
 
   <ng-container *ngIf="step === 'confirm'">
-    <div class="section ion-padding">
-      <div class="kicker">Confirm approval</div>
+    <div class="approve-hero-spacer approve-hero-spacer--sm" aria-hidden="true"></div>
 
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Partner</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="pair">
-            <div class="label">Name</div>
-            <div class="value">{{ selectedPartner?.name || '—' }}</div>
-          </div>
-          <div class="pair">
-            <div class="label">Phone</div>
-            <div class="value">{{ selectedPartner?.phone || '—' }}</div>
-          </div>
-        </ion-card-content>
-      </ion-card>
+    <section class="approve-section approve-section--confirm">
+      <h2 class="approve-section-title">Confirm approval</h2>
+      <p class="approve-section-hint">Review details before assigning this booking</p>
 
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Customer</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <div class="pair">
-            <div class="label">Phone</div>
-            <div class="value">{{ bookingCustomerPhone() }}</div>
+      <div class="approve-confirm-stack">
+        <div class="approve-confirm-panel">
+          <div class="approve-panel-header">
+            <div class="approve-panel-icon" aria-hidden="true">
+              <ion-icon name="business-outline"></ion-icon>
+            </div>
+            <span class="approve-panel-title">Partner</span>
           </div>
-          <div class="pair">
-            <div class="label">Address</div>
-            <div class="value">{{ bookingAddressText() }}</div>
-          </div>
-          <div class="pair" *ngIf="booking.price !== null && booking.price !== undefined">
-            <div class="label">Price</div>
-            <div class="value">₹{{ booking.price }}</div>
-          </div>
-        </ion-card-content>
-      </ion-card>
+          <dl class="approve-dl">
+            <div class="approve-dl-row">
+              <dt>Name</dt>
+              <dd>{{ selectedPartner?.name || '—' }}</dd>
+            </div>
+            <div class="approve-dl-row">
+              <dt>Phone</dt>
+              <dd>{{ selectedPartner?.phone || '—' }}</dd>
+            </div>
+          </dl>
+        </div>
 
-      <div class="cta">
-        <ion-button expand="block" color="primary" [disabled]="isSubmitting" (click)="approve()">
-          <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+        <div class="approve-confirm-panel">
+          <div class="approve-panel-header">
+            <div class="approve-panel-icon approve-panel-icon--customer" aria-hidden="true">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+            <span class="approve-panel-title">Customer</span>
+          </div>
+          <dl class="approve-dl">
+            <div class="approve-dl-row">
+              <dt>Phone</dt>
+              <dd>{{ bookingCustomerPhone() }}</dd>
+            </div>
+            <div class="approve-dl-row">
+              <dt>Address</dt>
+              <dd>{{ bookingAddressText() }}</dd>
+            </div>
+            <div class="approve-dl-row" *ngIf="booking.price !== null && booking.price !== undefined">
+              <dt>Price</dt>
+              <dd class="approve-price">₹{{ booking.price }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <div class="approve-cta">
+        <ion-button
+          class="approve-submit-btn"
+          expand="block"
+          size="large"
+          shape="round"
+          color="primary"
+          [disabled]="isSubmitting"
+          (click)="approve()"
+        >
+          <ion-spinner *ngIf="isSubmitting" name="crescent" slot="start"></ion-spinner>
           <span *ngIf="!isSubmitting">Confirm approval</span>
+          <span *ngIf="isSubmitting">Approving…</span>
         </ion-button>
       </div>
-    </div>
+    </section>
   </ng-container>
 </ion-content>
-

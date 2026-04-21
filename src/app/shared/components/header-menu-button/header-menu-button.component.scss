@@ -1,0 +1,4 @@
+/* Let the inner button participate in ion-buttons layout as a direct child */
+:host {
+  display: contents;
+}
