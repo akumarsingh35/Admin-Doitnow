@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { SharedModule } from '../../shared/shared.module';
 
+import { PartnerFormModalComponent } from './modals/partner-form-modal.component';
 import { PartnersPage } from './partners.page';
 
 const routes: Routes = [
@@ -14,6 +15,6 @@ const routes: Routes = [
 
 @NgModule({
   imports: [SharedModule, RouterModule.forChild(routes)],
-  declarations: [PartnersPage],
+  declarations: [PartnersPage, PartnerFormModalComponent],
 })
 export class PartnersModule {}

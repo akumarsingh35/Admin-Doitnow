@@ -8,6 +8,11 @@ const routes: Routes = [
     path: '',
     component: DashboardPage,
   },
+  {
+    path: 'bookings',
+    redirectTo: '/requests',
+    pathMatch: 'full',
+  },
 ];
 
 @NgModule({

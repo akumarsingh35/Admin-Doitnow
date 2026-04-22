@@ -1,9 +1,15 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ModalController, ToastController } from '@ionic/angular';
 import { Subject, debounceTime, distinctUntilChanged, firstValueFrom, takeUntil } from 'rxjs';
 
 import { AdminBookingService, Booking } from '../../../services/admin-booking.service';
-import { Partner, PartnerService } from '../../../services/partner.service';
+import {
+  AdminPartner,
+  AdminPartnerService,
+  firstAddressLine,
+  serviceTitles,
+} from '../../../services/admin-partner.service';
 
 type Step = 'select_partner' | 'confirm';
 
@@ -20,13 +26,11 @@ export class ApproveBookingModalComponent implements OnInit, OnDestroy {
   step: Step = 'select_partner';
 
   partnerSearchTerm = '';
-  partners: Partner[] = [];
-  selectedPartner?: Partner;
+  partners: AdminPartner[] = [];
+  selectedPartner?: AdminPartner;
 
   isLoadingPartners = false;
-  partnersHasMore = true;
-  private partnersPage = 1;
-  private readonly partnersLimit = 25;
+  partnersHasMore = false;
 
   isSubmitting = false;
 
@@ -35,7 +39,7 @@ export class ApproveBookingModalComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly adminBookingService: AdminBookingService,
-    private readonly partnerService: PartnerService,
+    private readonly adminPartnerService: AdminPartnerService,
     private readonly modalController: ModalController,
     private readonly toastController: ToastController,
     private readonly cdr: ChangeDetectorRef,
@@ -44,12 +48,11 @@ export class ApproveBookingModalComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.searchChanged$
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroyed$))
-      .subscribe((value) => {
-        this.partnerSearchTerm = value;
-        void this.resetPartnersAndLoad();
+      .subscribe(() => {
+        void this.loadPartnersFromApi();
       });
 
-    void this.resetPartnersAndLoad();
+    void this.loadPartnersFromApi();
   }
 
   ngOnDestroy(): void {
@@ -58,47 +61,29 @@ export class ApproveBookingModalComponent implements OnInit, OnDestroy {
   }
 
   onSearchChange(value: string): void {
+    this.partnerSearchTerm = value;
     this.searchChanged$.next(value);
   }
 
-  trackByPartnerId(index: number, partner: Partner): string {
+  trackByPartnerId(index: number, partner: AdminPartner): string {
     return partner.id ?? String(index);
   }
 
   async loadMorePartners(event?: CustomEvent): Promise<void> {
-    if (this.isLoadingPartners || !this.partnersHasMore) {
-      (event?.target as any)?.complete?.();
-      return;
-    }
-
-    this.isLoadingPartners = true;
-    this.cdr.markForCheck();
-
-    try {
-      const response = await firstValueFrom(
-        this.partnerService.listPartners({
-          q: this.partnerSearchTerm.trim() || undefined,
-          page: this.partnersPage,
-          limit: this.partnersLimit,
-        }),
-      );
-
-      this.partners = [...this.partners, ...response.items];
-      this.partnersPage += 1;
-      this.partnersHasMore = Boolean(response.hasMore);
-    } catch {
-      this.partnersHasMore = false;
-      await this.presentToast('Failed to load partners.');
-    } finally {
-      this.isLoadingPartners = false;
-      this.cdr.markForCheck();
-      (event?.target as any)?.complete?.();
-    }
+    (event?.target as { complete?: () => void } | null)?.complete?.();
   }
 
-  selectPartner(partner: Partner): void {
+  selectPartner(partner: AdminPartner): void {
     this.selectedPartner = partner;
     this.step = 'confirm';
+  }
+
+  addressLine(partner: AdminPartner): string {
+    return firstAddressLine(partner);
+  }
+
+  serviceNames(partner: AdminPartner): string[] {
+    return serviceTitles(partner);
   }
 
   back(): void {
@@ -119,10 +104,12 @@ export class ApproveBookingModalComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     try {
-      await firstValueFrom(this.adminBookingService.approveBooking(this.booking.id, this.selectedPartner.id));
+      await firstValueFrom(
+        this.adminBookingService.approveBooking(this.booking.id, this.selectedPartner.id),
+      );
       await this.dismiss({ approved: true });
     } catch (error) {
-      const message = (error as { message?: string })?.message ?? 'Failed to approve booking.';
+      const message = this.messageFromUnknown(error);
       await this.presentToast(message);
     } finally {
       this.isSubmitting = false;
@@ -142,11 +129,40 @@ export class ApproveBookingModalComponent implements OnInit, OnDestroy {
     return this.booking.address?.fullAddress || '—';
   }
 
-  private async resetPartnersAndLoad(): Promise<void> {
-    this.partnersPage = 1;
-    this.partners = [];
-    this.partnersHasMore = true;
-    await this.loadMorePartners();
+  private async loadPartnersFromApi(): Promise<void> {
+    this.isLoadingPartners = true;
+    this.cdr.markForCheck();
+
+    try {
+      this.partners = await this.adminPartnerService.searchPartners({
+        search: this.partnerSearchTerm.trim() || undefined,
+        serviceId: this.booking.service?.id ?? undefined,
+        onlyActive: true,
+      });
+    } catch (e) {
+      this.partners = [];
+      const msg =
+        e instanceof HttpErrorResponse && e.status === 401
+          ? 'Session expired.'
+          : 'Could not load partners.';
+      await this.presentToast(msg);
+    } finally {
+      this.isLoadingPartners = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private messageFromUnknown(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const b = error.error;
+      if (b && typeof b === 'object' && 'message' in b) {
+        return String((b as { message: string }).message);
+      }
+      if (typeof b === 'string' && b.trim()) {
+        return b;
+      }
+    }
+    return (error as { message?: string })?.message ?? 'Failed to approve request.';
   }
 
   private async presentToast(message: string): Promise<void> {

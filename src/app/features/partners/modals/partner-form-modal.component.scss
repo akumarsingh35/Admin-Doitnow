@@ -1,0 +1,85 @@
+.partner-form-header ion-toolbar {
+  --min-height: 52px;
+}
+
+/* Create / Save — white label & spinner on primary */
+.partner-form-header ion-buttons[slot="end"] ion-button[fill="solid"] {
+  --color: #ffffff;
+  --ion-color-contrast: #ffffff;
+  ion-icon,
+  ion-spinner {
+    --color: #ffffff;
+    color: #ffffff;
+  }
+}
+
+.partner-form-content {
+  --background: var(--ion-background-color);
+  --padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
+.partner-form {
+  padding: 0.5rem 0 1.25rem;
+  max-width: 560px;
+  margin-inline: auto;
+}
+
+.partner-form-block {
+  margin-bottom: 1.25rem;
+}
+
+.partner-form-h {
+  margin: 0 0 0.4rem 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+}
+
+.partner-form-hint {
+  margin: 0 1rem 0.5rem;
+  font-size: 0.82rem;
+  color: var(--ion-color-medium);
+  line-height: 1.4;
+}
+
+.partner-form-hint code {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ion-color-medium) 10%, transparent);
+  color: var(--ion-color-tertiary);
+}
+
+ion-textarea {
+  --padding-top: 8px;
+}
+
+.partner-form-list {
+  background: var(--ion-item-background, var(--ion-background-color));
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 14%, transparent);
+  overflow: hidden;
+}
+
+.partner-form-svc-list ion-item {
+  --min-height: 48px;
+}
+
+.partner-form-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 200px;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+}
+
+.partner-form-center--sm {
+  min-height: 80px;
+  padding: 0.5rem 0;
+}

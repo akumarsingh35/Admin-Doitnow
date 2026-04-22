@@ -57,7 +57,7 @@ export class CancelBookingModalComponent {
       await firstValueFrom(this.adminBookingService.rejectBooking(this.booking.id, reason));
       await this.dismiss({ cancelled: true });
     } catch (error) {
-      const message = (error as { message?: string })?.message ?? 'Failed to cancel booking.';
+      const message = (error as { message?: string })?.message ?? 'Failed to reject request.';
       await this.presentToast(message);
     } finally {
       this.isSubmitting = false;

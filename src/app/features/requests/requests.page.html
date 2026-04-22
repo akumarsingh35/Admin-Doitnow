@@ -5,76 +5,183 @@
       <app-header-menu-button></app-header-menu-button>
     </ion-buttons>
   </ion-toolbar>
+
+  <ion-toolbar class="request-filters-toolbar">
+    <ion-item lines="none" class="request-filter-item request-filter-item--status">
+      <ion-icon
+        class="request-filter-funnel"
+        name="funnel-outline"
+        slot="start"
+        aria-hidden="true"
+      ></ion-icon>
+      <ion-select
+        class="request-filter-select"
+        [(ngModel)]="status"
+        interface="action-sheet"
+        [interfaceOptions]="statusSelectInterfaceOptions"
+        label="Status"
+        labelPlacement="start"
+        aria-label="Request status filter"
+        (ionChange)="onStatusChange($any($event.detail.value))"
+      >
+        <ion-select-option *ngFor="let opt of statusOptions" [value]="opt.value">
+          {{ opt.label }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-toolbar>
 </ion-header>
 
-<ion-content class="requests-content" [fullscreen]="true">
-  <div class="requests-canvas" aria-hidden="true">
-    <div class="requests-canvas-glow requests-canvas-glow--1"></div>
-    <div class="requests-canvas-glow requests-canvas-glow--2"></div>
-    <div class="requests-canvas-mesh"></div>
+<ion-content [fullscreen]="true" class="requests-content">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <p *ngIf="loadError" class="request-load-error ion-padding-horizontal" role="alert">{{ loadError }}</p>
+
+  <div *ngIf="isLoading" class="ion-padding ion-text-center request-loading">
+    <ion-spinner></ion-spinner>
+    <p>Loading requests…</p>
   </div>
 
-  <div class="requests-inner">
-    <article class="requests-hero">
-      <div class="requests-hero-inner">
-        <div class="requests-hero-top">
-          <span class="requests-hero-badge">Operations</span>
-          <span class="requests-hero-version">v1</span>
+  <div
+    *ngIf="!isLoading && bookings.length === 0"
+    class="ion-padding ion-text-center request-empty"
+  >
+    <p>No requests found</p>
+  </div>
+
+  <div
+    *ngIf="!isLoading && bookings.length > 0"
+    class="requests-cards-panel"
+    role="list"
+    aria-label="Request list"
+  >
+    <ion-card *ngFor="let booking of bookings; trackBy: trackByBookingId" class="request-card">
+      <ion-card-content class="request-card-content">
+        <div class="request-card-top">
+          <span class="request-card-id">#{{ booking.id }}</span>
+          <ion-badge [color]="getStatusColor(booking.status)" class="request-card-badge">
+            {{ booking.status }}
+          </ion-badge>
         </div>
-        <h2 class="requests-hero-title">Requests hub</h2>
-        <p class="requests-hero-lead">{{ lead }}</p>
-      </div>
-    </article>
-
-    <div class="requests-metrics" role="group" aria-label="Summary metrics">
-      <div
-        *ngFor="let s of stats"
-        class="requests-metric"
-        [class.requests-metric--a]="s.tone === 'a'"
-        [class.requests-metric--b]="s.tone === 'b'"
-        [class.requests-metric--c]="s.tone === 'c'"
-      >
-        <span class="requests-metric-value">{{ s.value }}</span>
-        <span class="requests-metric-label">{{ s.label }}</span>
-        <span class="requests-metric-hint">{{ s.hint }}</span>
-      </div>
-    </div>
-
-    <section class="requests-lanes" aria-labelledby="lanes-heading">
-      <header class="requests-lanes-head">
-        <div class="requests-lanes-head-text">
-          <h3 id="lanes-heading" class="requests-lanes-title">Workflow lanes</h3>
-          <p class="requests-lanes-sub">Enable each stream when your APIs are ready</p>
-        </div>
-      </header>
-
-      <ul class="requests-lane-list">
-        <li *ngFor="let w of workflows" class="requests-lane-item">
-          <div
-            class="requests-lane"
-            [class.requests-lane--indigo]="w.orb === 'indigo'"
-            [class.requests-lane--violet]="w.orb === 'violet'"
-            [class.requests-lane--amber]="w.orb === 'amber'"
-            [class.requests-lane--emerald]="w.orb === 'emerald'"
-          >
-            <div class="requests-lane-icon-wrap" aria-hidden="true">
-              <ion-icon [name]="w.icon" class="requests-lane-icon"></ion-icon>
-            </div>
-            <div class="requests-lane-body">
-              <div class="requests-lane-top">
-                <h4 class="requests-lane-title">{{ w.title }}</h4>
-                <span class="requests-lane-pill">Soon</span>
-              </div>
-              <p class="requests-lane-desc">{{ w.subtitle }}</p>
-            </div>
-            <ion-icon name="chevron-forward-outline" class="requests-lane-chevron" aria-hidden="true"></ion-icon>
+        <h2 class="request-card-service">{{ booking.service?.title || 'Service' }}</h2>
+        <div class="request-card-meta">
+          <div class="request-card-meta-row">
+            <ion-icon name="location-outline" class="request-card-icon" aria-hidden="true"></ion-icon>
+            <span class="request-card-meta-text">{{ booking.address?.fullAddress || '—' }}</span>
           </div>
-        </li>
-      </ul>
-    </section>
+          <div class="request-card-meta-row">
+            <ion-icon name="time-outline" class="request-card-icon" aria-hidden="true"></ion-icon>
+            <span class="request-card-meta-text">{{ requestSchedule(booking) }}</span>
+          </div>
+          <div
+            class="request-card-meta-row"
+            *ngIf="booking.user?.fullName || booking.user?.phone || booking.address?.phone"
+          >
+            <ion-icon name="person-outline" class="request-card-icon" aria-hidden="true"></ion-icon>
+            <span class="request-card-meta-text">
+              {{ booking.user?.fullName || '—' }}
+              <ng-container *ngIf="booking.user?.phone || booking.address?.phone">
+                <span class="request-card-sep" aria-hidden="true"> · </span>
+                {{ booking.user?.phone || booking.address?.phone }}
+              </ng-container>
+            </span>
+          </div>
+          <div class="request-card-meta-row" *ngIf="booking.price != null && booking.price !== undefined">
+            <ion-icon name="cash-outline" class="request-card-icon" aria-hidden="true"></ion-icon>
+            <span class="request-card-meta-text">₹{{ booking.price }}</span>
+          </div>
+        </div>
 
-    <p class="requests-foot">
-      Structured for filters, search, and deep links — swap placeholders when services go live.
-    </p>
+        <div *ngIf="booking.status === 'PENDING'" class="request-card-actions" (click)="$event.stopPropagation()">
+          <ion-button
+            size="small"
+            fill="outline"
+            color="danger"
+            [disabled]="isLoading"
+            (click)="openCancel(booking)"
+          >
+            Reject
+          </ion-button>
+          <ion-button
+            size="small"
+            color="primary"
+            [disabled]="isLoading"
+            (click)="openApprove(booking)"
+          >
+            Approve
+          </ion-button>
+        </div>
+
+        <div
+          *ngIf="booking.status === 'CONFIRMED'"
+          class="request-card-actions request-card-actions--complete"
+          (click)="$event.stopPropagation()"
+        >
+          <ion-button
+            size="small"
+            color="success"
+            [disabled]="isLoading || isCompleting(booking)"
+            (click)="confirmComplete(booking, $event)"
+          >
+            <ion-spinner *ngIf="isCompleting(booking)" name="crescent" slot="start"></ion-spinner>
+            {{ isCompleting(booking) ? '…' : 'Mark complete' }}
+          </ion-button>
+        </div>
+
+        <div class="request-card-cta" aria-hidden="true">
+          <ion-button
+            type="button"
+            size="small"
+            fill="clear"
+            class="request-card-view"
+            (click)="goToDetail(booking, $event)"
+          >
+            View
+            <ion-icon slot="end" name="chevron-forward-outline" class="request-card-cta-chevron"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
   </div>
+
+  <nav
+    *ngIf="!isLoading && bookings.length > 0"
+    class="pagination"
+    aria-label="Request list pages"
+  >
+    <div class="pagination-bar">
+      <ion-button
+        class="pagination-nav-btn"
+        type="button"
+        fill="outline"
+        color="primary"
+        shape="round"
+        size="small"
+        [disabled]="currentPage <= 1 || isLoading"
+        (click)="previousPage()"
+        aria-label="Previous page"
+      >
+        <ion-icon slot="icon-only" name="chevron-back-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+      <div class="pagination-info">
+        <span class="pagination-page">Page {{ currentPage }} of {{ totalPages }}</span>
+        <span class="pagination-total" *ngIf="total > 0">{{ total }} result{{ total === 1 ? '' : 's' }}</span>
+      </div>
+      <ion-button
+        class="pagination-nav-btn"
+        type="button"
+        fill="outline"
+        color="primary"
+        shape="round"
+        size="small"
+        [disabled]="currentPage >= totalPages || isLoading"
+        (click)="nextPage()"
+        aria-label="Next page"
+      >
+        <ion-icon slot="icon-only" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </div>
+  </nav>
 </ion-content>

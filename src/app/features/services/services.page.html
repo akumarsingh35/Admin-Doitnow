@@ -1,9 +1,11 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Services</ion-title>
+    <ion-title>{{ pageTitle }}</ion-title>
     <ion-buttons slot="end" class="services-toolbar-actions">
       <ion-button
         class="services-add-btn"
+        fill="solid"
+        color="primary"
         size="small"
         [disabled]="loading || isSubmitting"
         (click)="openAddModal()"
@@ -34,9 +36,9 @@
           <span class="services-hero-badge">Catalog</span>
           <span class="services-hero-version">Workspace</span>
         </div>
-        <h2 class="services-hero-title">Service offerings</h2>
+        <h2 class="services-hero-title">Service catalog</h2>
         <p class="services-hero-lead">
-          Shape what customers see—titles, pricing, imagery, and highlights for your bookable services.
+          Manage what customers see: titles, pricing, cover imagery, and featured placement across your app.
         </p>
       </div>
     </article>
@@ -62,12 +64,38 @@
     <section class="services-list-section" aria-labelledby="services-list-heading">
       <header class="services-list-head">
         <h3 id="services-list-heading" class="services-list-title">Your services</h3>
-        <p class="services-list-sub" *ngIf="!loading">{{ catalogTotal }} in catalog</p>
+        <p class="services-list-sub" *ngIf="!loading && catalogTotal > 0">
+          <ng-container *ngIf="!searchQuery.trim()">{{ catalogTotal }} in catalog</ng-container>
+          <ng-container *ngIf="searchQuery.trim()">
+            {{ filteredServices.length }} of {{ catalogTotal }} shown
+          </ng-container>
+        </p>
       </header>
+
+      <ion-searchbar
+        *ngIf="!loading && catalogTotal > 0"
+        class="services-searchbar"
+        placeholder="Search by title, tag, or description…"
+        inputmode="search"
+        [debounce]="0"
+        [ngModel]="searchQuery"
+        (ionInput)="onSearchInput($any($event.detail.value))"
+        show-clear-button="focus"
+        aria-label="Filter services"
+      ></ion-searchbar>
 
       <div *ngIf="loading" class="services-loading">
         <ion-spinner name="crescent"></ion-spinner>
         <p>Loading catalog…</p>
+      </div>
+
+      <div
+        *ngIf="!loading && services.length > 0 && catalogTotal === 0"
+        class="services-no-results"
+      >
+        <ion-icon name="eye-off-outline" aria-hidden="true"></ion-icon>
+        <p class="services-no-results-title">No active services</p>
+        <p class="services-no-results-desc">Only services with isActive true appear in this list.</p>
       </div>
 
       <div *ngIf="!loading && services.length === 0" class="services-empty">
@@ -76,79 +104,109 @@
         </div>
         <h4 class="services-empty-title">No services yet</h4>
         <p class="services-empty-desc">Create a service to set pricing, copy, and visuals shown to customers.</p>
-        <ion-button class="services-empty-cta" (click)="openAddModal()" [disabled]="isSubmitting">
+        <ion-button
+          class="services-empty-cta"
+          fill="solid"
+          color="primary"
+          (click)="openAddModal()"
+          [disabled]="isSubmitting"
+        >
           <ion-icon name="add-outline" slot="start" aria-hidden="true"></ion-icon>
           Add service
         </ion-button>
       </div>
 
-      <ion-grid *ngIf="!loading && services.length > 0" class="services-grid">
-        <ion-row>
-          <ion-col size="12" size-md="6" size-lg="4" *ngFor="let service of services">
-            <article class="services-card">
-              <div class="services-card-media" [ngClass]="service.colorClass || ''">
-                <img
-                  *ngIf="(service.displayType === 'IMAGE' || !service.displayType) && service.imageUrl"
-                  [src]="service.imageUrl"
-                  [alt]="service.title"
-                />
-                <img
-                  *ngIf="service.displayType === 'ICON' && service.iconUrl"
-                  [src]="service.iconUrl"
-                  [alt]="service.title"
-                  class="services-card-media-icon"
-                />
-                <div class="services-card-media-fallback" *ngIf="!service.imageUrl && !service.iconUrl">
-                  <ion-icon name="image-outline" aria-hidden="true"></ion-icon>
-                  <span>No media</span>
-                </div>
-                <div class="services-card-media-badges">
-                  <span class="services-card-chip services-card-chip--popular" *ngIf="service.isPopular">Popular</span>
-                </div>
-              </div>
+      <div
+        *ngIf="!loading && catalogTotal > 0 && filteredServices.length === 0 && searchQuery.trim()"
+        class="services-no-results"
+      >
+        <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+        <p class="services-no-results-title">No matches</p>
+        <p class="services-no-results-desc">Try a different search or clear the filter.</p>
+        <ion-button size="small" fill="clear" (click)="clearSearch()">Clear search</ion-button>
+      </div>
 
-              <div class="services-card-body">
-                <div class="services-card-head">
-                  <h4 class="services-card-title">{{ service.title }}</h4>
-                  <span class="services-card-chip" *ngIf="service.tag">{{ service.tag }}</span>
-                </div>
-                <p class="services-card-subtitle" *ngIf="service.subtitle">{{ service.subtitle }}</p>
+      <div *ngIf="!loading && filteredServices.length > 0" class="services-catalog" role="list" aria-label="Service catalog">
+        <ion-card
+          *ngFor="let service of filteredServices; trackBy: trackByServiceId"
+          class="services-card"
+          role="listitem"
+        >
+          <div class="services-card-media" [ngClass]="service.colorClass || ''">
+            <img
+              *ngIf="(service.displayType === 'IMAGE' || !service.displayType) && service.imageUrl"
+              [src]="service.imageUrl"
+              [attr.alt]="service.title"
+            />
+            <img
+              *ngIf="service.displayType === 'ICON' && service.iconUrl"
+              [src]="service.iconUrl"
+              [attr.alt]="service.title"
+              class="services-card-media-icon"
+            />
+            <div class="services-card-media-fallback" *ngIf="!service.imageUrl && !service.iconUrl">
+              <ion-icon name="cube-outline" aria-hidden="true"></ion-icon>
+              <span>No media</span>
+            </div>
+            <div class="services-card-media-badges">
+              <span class="services-card-chip services-card-chip--popular" *ngIf="service.isPopular">Popular</span>
+            </div>
+            <div class="services-card-media-gradient" aria-hidden="true"></div>
+          </div>
 
-                <div class="services-card-price-row">
-                  <span class="services-card-price">{{ service.currency }} {{ service.startingPrice }}</span>
-                  <span class="services-card-price-label">from</span>
-                </div>
+          <ion-card-content class="services-card-body">
+            <div class="services-card-meta">
+              <ion-badge class="services-card-type-badge" color="tertiary">{{ displayTypeLabel(service) }}</ion-badge>
+              <span class="services-card-media-pill" *ngIf="service.imageUrl || service.iconUrl">
+                <ion-icon name="image-outline" aria-hidden="true"></ion-icon>
+                Media
+              </span>
+              <span class="services-card-media-pill services-card-media-pill--muted" *ngIf="!service.imageUrl && !service.iconUrl">
+                No assets
+              </span>
+            </div>
 
-                <p class="services-card-desc" *ngIf="service.description">{{ service.description }}</p>
+            <div class="services-card-head">
+              <h4 class="services-card-title">{{ service.title }}</h4>
+              <span class="services-card-chip services-card-chip--tag" *ngIf="service.tag">{{ service.tag }}</span>
+            </div>
+            <p class="services-card-subtitle" *ngIf="service.subtitle">{{ service.subtitle }}</p>
 
-                <div class="services-card-actions">
-                  <ion-button
-                    class="services-card-action"
-                    size="small"
-                    fill="outline"
-                    [disabled]="isSubmitting"
-                    (click)="openEditModal(service)"
-                  >
-                    <ion-icon name="create-outline" slot="start" aria-hidden="true"></ion-icon>
-                    Edit
-                  </ion-button>
-                  <ion-button
-                    class="services-card-action"
-                    size="small"
-                    color="danger"
-                    fill="outline"
-                    [disabled]="isSubmitting"
-                    (click)="confirmDelete(service)"
-                  >
-                    <ion-icon name="trash-outline" slot="start" aria-hidden="true"></ion-icon>
-                    Delete
-                  </ion-button>
-                </div>
-              </div>
-            </article>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+            <div class="services-card-price-row">
+              <span class="services-card-price"
+                >{{ service.currency || 'INR' }}&nbsp;{{ service.startingPrice | number: '1.0-0' }}</span
+              >
+              <span class="services-card-price-label">starting at</span>
+            </div>
+
+            <p class="services-card-desc" *ngIf="service.description">{{ service.description }}</p>
+
+            <div class="services-card-footer">
+              <ion-button
+                class="services-card-action services-card-action--edit"
+                size="small"
+                fill="solid"
+                [disabled]="isSubmitting"
+                (click)="openEditModal(service)"
+              >
+                <ion-icon name="create-outline" slot="start" aria-hidden="true"></ion-icon>
+                Edit
+              </ion-button>
+              <ion-button
+                class="services-card-action"
+                size="small"
+                color="danger"
+                fill="outline"
+                [disabled]="isSubmitting"
+                (click)="confirmDelete(service)"
+              >
+                <ion-icon name="trash-outline" slot="start" aria-hidden="true"></ion-icon>
+                Delete
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
     </section>
   </div>
 
@@ -361,8 +419,16 @@
           </section>
 
           <div class="services-submit-row">
-            <ion-button class="services-submit-btn" type="submit" expand="block" size="large" [disabled]="isSubmitting">
-              <ion-spinner *ngIf="isSubmitting" name="crescent"></ion-spinner>
+            <ion-button
+              class="services-submit-btn"
+              type="submit"
+              expand="block"
+              size="large"
+              fill="solid"
+              color="primary"
+              [disabled]="isSubmitting"
+            >
+              <ion-spinner *ngIf="isSubmitting" name="crescent" color="light"></ion-spinner>
               <span *ngIf="!isSubmitting">{{ isEditMode ? 'Save changes' : 'Create service' }}</span>
             </ion-button>
           </div>

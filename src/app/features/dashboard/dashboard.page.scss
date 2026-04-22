@@ -2,281 +2,513 @@
   display: block;
 }
 
-// Status filter lives in ion-header (not ion-content), so it is never clipped by the content scroller.
-// Picker uses action-sheet: full labels, thumb-friendly targets on small screens.
-
-.booking-filter-toolbar {
-  --min-height: 52px;
-  --padding-top: 2px;
-  --padding-bottom: 4px;
+.dashboard-content {
+  --background: var(--ion-background-color);
+  --padding-start: max(0.75rem, env(safe-area-inset-left));
+  --padding-end: max(0.75rem, env(safe-area-inset-right));
+  --padding-top: 0.5rem;
+  position: relative;
 }
 
-.booking-filter-item {
-  --background: transparent;
-  --inner-padding-end: 0;
-  --padding-start: max(0.5rem, env(safe-area-inset-left));
-  --padding-end: max(0.5rem, env(safe-area-inset-right));
-  --min-height: 48px;
-  width: 100%;
+.dashboard-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: min(46vh, 320px);
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
 }
 
-.booking-filter-icon {
-  color: var(--ion-color-medium);
-  font-size: 1.25rem;
-  margin-inline-end: 4px;
+.dashboard-canvas-mesh {
+  position: absolute;
+  inset: 0;
+  opacity: 0.48;
+  background:
+    radial-gradient(ellipse 120% 80% at 12% 0%, color-mix(in srgb, var(--ion-color-tertiary) 22%, transparent) 0%, transparent 55%),
+    radial-gradient(ellipse 100% 70% at 90% 10%, color-mix(in srgb, var(--ion-color-primary) 18%, transparent) 0%, transparent 48%),
+    radial-gradient(ellipse 90% 60% at 48% 100%, color-mix(in srgb, var(--ion-color-secondary) 14%, transparent) 0%, transparent 45%);
 }
 
-.booking-status-select {
-  width: 100%;
-  max-width: 100%;
-  font-weight: 600;
+.dashboard-canvas-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
+  opacity: 0.34;
 }
 
-.bookings-list {
-  padding-inline: max(0.75rem, env(safe-area-inset-left)) max(0.75rem, env(safe-area-inset-right));
+.dashboard-canvas-glow--1 {
+  width: min(58vw, 220px);
+  height: min(58vw, 220px);
+  top: -8%;
+  left: -12%;
+  background: color-mix(in srgb, var(--ion-color-primary) 46%, transparent);
 }
 
-.pagination {
-  display: block;
-  padding-inline: max(0.75rem, env(safe-area-inset-left)) max(0.75rem, env(safe-area-inset-right));
-  padding-top: 0.5rem;
-  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+.dashboard-canvas-glow--2 {
+  width: min(48vw, 180px);
+  height: min(48vw, 180px);
+  top: 4%;
+  right: -10%;
+  background: color-mix(in srgb, var(--ion-color-tertiary) 40%, transparent);
 }
 
-.pagination-bar {
+.dashboard-inner {
+  max-width: 900px;
+  margin-inline: auto;
+  position: relative;
+  z-index: 1;
+  padding-top: 0.2rem;
+}
+
+.dashboard-hero {
+  margin-bottom: 1.1rem;
+}
+
+.dashboard-hero-inner {
+  padding: 1.2rem 1.25rem 1.2rem;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--ion-card-background, #fff) 72%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in srgb, var(--ion-color-light) 65%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 55%, transparent) inset,
+    0 20px 50px -28px color-mix(in srgb, var(--ion-color-dark) 28%, transparent);
+}
+
+.dashboard-hero-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 14px;
-  background: var(--ion-item-background, var(--ion-background-color));
-  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 20%, transparent);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--ion-color-dark) 8%, transparent);
+  margin-bottom: 0.6rem;
 }
 
-.pagination-info {
-  flex: 1;
-  min-width: 0;
+.dashboard-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.26rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ion-color-primary-contrast);
+  background: linear-gradient(
+    135deg,
+    var(--ion-color-primary),
+    color-mix(in srgb, var(--ion-color-primary) 70%, var(--ion-color-secondary))
+  );
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--ion-color-primary) 32%, transparent);
+}
+
+.dashboard-hero-version {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ion-color-medium);
+  opacity: 0.9;
+}
+
+.dashboard-hero-title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.4rem, 4.5vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+  color: var(--ion-text-color);
+}
+
+.dashboard-hero-lead {
+  margin: 0 0 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--ion-text-color) 56%, var(--ion-color-medium));
+  max-width: 38rem;
+}
+
+.dashboard-session-pill {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.6rem 0.45rem 0.45rem;
+  border-radius: 14px;
+  max-width: min(100%, 22rem);
+  background: color-mix(in srgb, var(--ion-color-medium) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 14%, transparent);
+}
+
+.dashboard-session-avatar {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  text-align: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--ion-color-primary-contrast, #fff);
+  background: color-mix(in srgb, var(--ion-color-primary) 90%, var(--ion-color-tertiary));
+  flex-shrink: 0;
 }
 
-.pagination-page {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+.dashboard-session-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.dashboard-session-name {
+  font-size: 0.88rem;
+  font-weight: 700;
   color: var(--ion-text-color);
-  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.pagination-total {
+.dashboard-session-email {
+  font-size: 0.72rem;
+  color: var(--ion-color-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-quick-nav {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 520px) {
+  .dashboard-quick-nav {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.dashboard-quick-link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.75rem 0.7rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 14%, transparent);
+  background: var(--ion-item-background, var(--ion-background-color));
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--ion-color-dark) 5%, transparent);
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.dashboard-quick-link:active {
+  background: color-mix(in srgb, var(--ion-color-primary) 6%, transparent);
+}
+
+.dashboard-quick-icon {
+  font-size: 1.35rem;
+  color: var(--ion-color-primary);
+  margin-bottom: 0.25rem;
+}
+
+.dashboard-quick-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ion-text-color);
+  letter-spacing: -0.02em;
+}
+
+.dashboard-quick-hint {
+  font-size: 0.7rem;
+  color: var(--ion-color-medium);
+  margin-top: 0.1rem;
+}
+
+.dashboard-loading {
+  padding: 1.5rem 0 0.5rem;
+  color: var(--ion-color-medium);
+  font-size: 0.88rem;
+}
+
+.dashboard-loading p {
+  margin: 0.5rem 0 0;
+}
+
+.dashboard-error {
+  color: var(--ion-color-danger-shade, var(--ion-color-danger));
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem;
+}
+
+.dashboard-section-hint {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--ion-text-color) 45%, var(--ion-color-medium));
+}
+
+.dashboard-section-hint a {
+  color: var(--ion-color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboard-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.55rem;
+  margin-bottom: 0.25rem;
+}
+
+@media (max-width: 400px) {
+  .dashboard-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-strip-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  padding: 0.85rem 0.7rem 0.75rem 2.6rem;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 14%, transparent);
+  background: var(--ion-item-background, var(--ion-background-color));
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--ion-color-dark) 5%, transparent);
+  min-height: 4.5rem;
+}
+
+.dashboard-strip-tile--a {
+  background: color-mix(in srgb, var(--ion-color-primary) 5.5%, var(--ion-item-background, var(--ion-background-color)));
+}
+.dashboard-strip-tile--b {
+  background: color-mix(in srgb, var(--ion-color-tertiary) 5.5%, var(--ion-item-background, var(--ion-background-color)));
+}
+.dashboard-strip-tile--c {
+  background: color-mix(in srgb, var(--ion-color-secondary) 5.5%, var(--ion-item-background, var(--ion-background-color)));
+}
+
+.dashboard-strip-icon {
+  position: absolute;
+  left: 0.7rem;
+  top: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--ion-color-primary);
+  opacity: 0.9;
+}
+
+.dashboard-strip-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: var(--ion-text-color);
+}
+
+.dashboard-strip-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+  margin-top: 0.2rem;
+}
+
+.dashboard-strip-hint {
+  font-size: 0.65rem;
+  color: var(--ion-color-medium);
+  margin-top: 0.15rem;
+  opacity: 0.9;
+}
+
+.dashboard-empty-card {
+  margin: 0;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--ion-color-dark) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 16%, transparent);
+}
+
+.dashboard-empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ion-color-medium);
+  line-height: 1.45;
+}
+
+.dashboard-empty a {
+  color: var(--ion-color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dashboard-section {
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-section-title {
+  margin: 0 0 0.75rem;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+}
+
+.summary-grid {
+  padding: 0;
+  margin: 0;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 20%, transparent);
+  background: var(--ion-item-background, var(--ion-background-color));
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--ion-color-dark) 6%, transparent);
+  min-height: 5rem;
+  justify-content: center;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--ion-color-medium);
   line-height: 1.2;
 }
 
-.pagination-nav-btn {
-  margin: 0;
-  flex-shrink: 0;
-  --padding-start: 0;
-  --padding-end: 0;
-  width: 2.5rem;
-  height: 2.5rem;
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ion-color-dark, var(--ion-text-color));
 }
 
-.pagination-nav-btn ion-icon {
-  font-size: 1.25rem;
+.stat-card--total .stat-value {
+  color: var(--ion-color-primary);
+}
+.stat-card--pending .stat-value {
+  color: var(--ion-color-warning-shade, var(--ion-color-warning));
+}
+.stat-card--approved .stat-value {
+  color: var(--ion-color-primary);
+}
+.stat-card--completed .stat-value {
+  color: var(--ion-color-success);
+}
+
+.activity-list {
+  background: var(--ion-item-background, var(--ion-background-color));
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 18%, transparent);
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--ion-color-dark) 5%, transparent);
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.activity-item {
+  --min-height: 52px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+}
+
+.activity-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ion-text-color);
+}
+
+.activity-count {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+.recent-card {
+  margin: 0;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--ion-color-dark) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 18%, transparent);
+}
+
+.recent-list {
+  padding: 0;
+  background: transparent;
+}
+
+.recent-item {
+  --min-height: 56px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --inner-padding-end: 4px;
+}
+
+.recent-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  margin-right: 8px;
+}
+
+.recent-id {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--ion-color-medium);
+}
+
+.recent-service {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ion-text-color);
+}
+
+.recent-meta {
+  font-size: 0.75rem;
+  color: var(--ion-color-medium);
+  font-weight: 500;
+}
+
+.recent-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.recent-badge {
+  text-transform: none;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.recent-view {
+  margin: 0;
+  --padding-start: 0.5rem;
+  --padding-end: 0.5rem;
+  font-weight: 600;
 }
 
 @media (prefers-color-scheme: dark) {
-  .pagination-bar {
-    border-color: color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  .stat-card,
+  .activity-list,
+  .recent-card {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 }
-
-.meta {
-  margin-top: 8px;
-  font-size: 12px;
-}
-
-.booking-item {
-  --padding-top: 14px;
-  --padding-bottom: 14px;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.id {
-  font-weight: 700;
-  letter-spacing: 0.2px;
-}
-
-.sub {
-  margin-top: 8px;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.strong {
-  font-weight: 600;
-}
-
-.muted {
-  color: var(--ion-color-medium);
-}
-
-.address {
-  margin-top: 6px;
-  font-size: 13px;
-  line-height: 1.25rem;
-}
-
-.footer {
-  margin-top: 8px;
-  font-size: 12px;
-}
-
-.actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-// Compact booking item layout
-.booking-item.compact {
-  --padding-top: 8px;
-  --padding-bottom: 8px;
-  --padding-start: 12px;
-  --padding-end: 12px;
-
-  .booking-row {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .booking-content {
-    flex: 1;
-    min-width: 0;
-
-    .service-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 4px;
-      min-width: 0;
-
-      .service-title {
-        margin: 0;
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--ion-color-dark);
-        min-width: 0;
-        flex: 1 1 auto;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        padding-top: 1px;
-      }
-
-      .status-badge {
-        font-size: 10px;
-        padding: 3px 7px;
-        text-transform: uppercase;
-        flex-shrink: 0;
-        line-height: 1.25;
-        white-space: nowrap;
-      }
-    }
-
-    .booking-info {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 12px;
-      font-size: 13px;
-      color: var(--ion-color-medium);
-
-      .info-item {
-        white-space: nowrap;
-
-        &.price {
-          font-weight: 600;
-          color: var(--ion-color-primary);
-        }
-      }
-    }
-  }
-
-  .booking-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: center;
-    gap: 8px;
-    flex-shrink: 0;
-
-    .booking-actions {
-      display: flex;
-      gap: 6px;
-
-      ion-button {
-        margin: 0;
-        --padding-start: 8px;
-        --padding-end: 8px;
-        font-size: 12px;
-      }
-    }
-  }
-}
-
-// Mobile adjustments
-@media (max-width: 768px) {
-  .booking-item.compact {
-    .booking-row {
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .booking-right {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-
-      .booking-actions {
-        ion-button {
-          font-size: 11px;
-        }
-      }
-    }
-  }
-}
-
-.state {
-  text-align: center;
-}
-
-.retry {
-  margin-top: 10px;
-}
-

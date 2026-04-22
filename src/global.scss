@@ -36,8 +36,25 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
 
-ion-content {
-    --padding-bottom: 200px;
+/* --------------------------------------------------------------------------
+ * Main scroll: reserve space for fixed bottom tab (app-bottom-nav) + home
+ * indicator. Page-level :host .foo-content { --padding-bottom: safe-area
+ * only } was overriding a weaker rule and hiding content under the bar.
+ * -------------------------------------------------------------------------- */
+:root {
+  --app-content-bottom-with-tabs: calc(56px + env(safe-area-inset-bottom, 0px) + 12px);
+}
+
+ion-app app-dashboard ion-content.dashboard-content,
+ion-app app-requests ion-content.requests-content,
+ion-app app-request-detail ion-content.request-detail-content,
+ion-app app-partners ion-content.partners-content,
+ion-app app-services ion-content.services-content,
+ion-app app-users ion-content.users-content,
+ion-app app-reports > ion-content,
+ion-app app-settings > ion-content,
+ion-app app-roles > ion-content {
+  --padding-bottom: var(--app-content-bottom-with-tabs);
 }
 
 /* --------------------------------------------------------------------------

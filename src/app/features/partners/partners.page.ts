@@ -1,158 +1,223 @@
-import { Component } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
-export interface PartnerWorker {
-  id: string;
-  name: string;
-  role: string;
-  zone: string;
-  rating: number;
-  reviewCount: number;
-  description: string;
-  completedJobs: number;
-  tone: 'indigo' | 'violet' | 'amber';
-}
+import {
+  AdminPartner,
+  AdminPartnerService,
+  firstAddressLine,
+  serviceTitles,
+} from '../../services/admin-partner.service';
+import { PartnerFormModalComponent } from './modals/partner-form-modal.component';
 
 @Component({
   selector: 'app-partners',
   templateUrl: './partners.page.html',
   styleUrls: ['./partners.page.scss'],
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PartnersPage {
+export class PartnersPage implements OnInit, OnDestroy {
   readonly title = 'Partners Management';
 
   readonly lead =
-    'Browse field partners and workers in your network. Sample profiles below are placeholder data for UI review.';
+    'Create, edit, and search field partners. Lists and search use the same API as booking assignment.';
 
-  readonly stats: Array<{ label: string; value: string; hint: string; tone: 'a' | 'b' | 'c' }> = [
-    { label: 'Workers', value: '8', hint: 'In directory', tone: 'a' },
-    { label: 'Avg. rating', value: '4.8', hint: 'Out of 5', tone: 'b' },
-    { label: 'Jobs done', value: '1.2k+', hint: 'All-time (sample)', tone: 'c' },
-  ];
+  /** Active-only vs active + inactive (GET /partners vs /partners/all). */
+  listScope: 'active' | 'all' = 'active';
 
-  /** Dummy worker profiles for layout preview */
-  readonly workers: PartnerWorker[] = [
-    {
-      id: '1',
-      name: 'Ananya Sharma',
-      role: 'Lead technician · HVAC',
-      zone: 'North Mumbai',
-      rating: 4.9,
-      reviewCount: 214,
-      description:
-        'Certified installer with 9+ years on commercial and residential cooling systems. Known for clean handoffs and same-day diagnostics.',
-      completedJobs: 186,
-      tone: 'indigo',
-    },
-    {
-      id: '2',
-      name: 'Rahul Menon',
-      role: 'Electrician · Industrial',
-      zone: 'Pune West',
-      rating: 4.7,
-      reviewCount: 156,
-      description:
-        'Handles heavy wiring audits and safety sign-offs. Preferred for factory floor upgrades and preventive maintenance windows.',
-      completedJobs: 142,
-      tone: 'violet',
-    },
-    {
-      id: '3',
-      name: 'Priya Iyer',
-      role: 'Plumbing specialist',
-      zone: 'Bengaluru Central',
-      rating: 5.0,
-      reviewCount: 302,
-      description:
-        'Emergency leak response and bathroom remodels. Maintains a near-perfect on-time record for scheduled visits.',
-      completedJobs: 268,
-      tone: 'amber',
-    },
-    {
-      id: '4',
-      name: 'Vikram Patel',
-      role: 'Carpentry & interiors',
-      zone: 'Ahmedabad',
-      rating: 4.6,
-      reviewCount: 89,
-      description:
-        'Custom shelving, modular kitchens, and finishing work. Brings detailed quotes and milestone-based milestones.',
-      completedJobs: 97,
-      tone: 'indigo',
-    },
-    {
-      id: '5',
-      name: 'Sneha Kulkarni',
-      role: 'Painter · Premium finishes',
-      zone: 'Thane',
-      rating: 4.8,
-      reviewCount: 178,
-      description:
-        'Low-VOC coatings and texture work for offices and homes. Coordinates with designers for color-matched batches.',
-      completedJobs: 155,
-      tone: 'violet',
-    },
-    {
-      id: '6',
-      name: 'Arjun Desai',
-      role: 'Appliance repair',
-      zone: 'Surat',
-      rating: 4.5,
-      reviewCount: 64,
-      description:
-        'Washing machines, refrigerators, and small appliances. Stocks common parts to reduce return visits.',
-      completedJobs: 71,
-      tone: 'amber',
-    },
-    {
-      id: '7',
-      name: 'Meera Joshi',
-      role: 'Deep cleaning lead',
-      zone: 'Mumbai Suburbs',
-      rating: 4.9,
-      reviewCount: 421,
-      description:
-        'Post-construction and move-in packages. Trains junior crews on checklist quality and client communication.',
-      completedJobs: 312,
-      tone: 'indigo',
-    },
-    {
-      id: '8',
-      name: 'Karthik Nair',
-      role: 'Smart home · Low voltage',
-      zone: 'Hyderabad',
-      rating: 4.7,
-      reviewCount: 93,
-      description:
-        'Camera, doorbell, and Wi-Fi mesh installs. Documents network maps for handover to IT teams.',
-      completedJobs: 88,
-      tone: 'violet',
-    },
-  ];
+  partners: AdminPartner[] = [];
+  loading = false;
+  loadError?: string;
 
-  readonly starSlots = [1, 2, 3, 4, 5] as const;
+  private searchQuery = '';
+  private readonly searchChanged$ = new Subject<string>();
+  private readonly destroyed$ = new Subject<void>();
 
-  trackByWorkerId(_index: number, w: PartnerWorker): string {
-    return w.id;
+  constructor(
+    private readonly adminPartnerService: AdminPartnerService,
+    private readonly modalController: ModalController,
+    private readonly alertController: AlertController,
+    private readonly toastController: ToastController,
+    private readonly cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit(): void {
+    this.searchChanged$
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroyed$))
+      .subscribe(() => {
+        void this.loadPartners();
+      });
+
+    void this.loadPartners();
   }
 
-  initials(name: string): string {
-    return name
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((p) => p[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+    this.destroyed$.complete();
   }
 
-  starIcon(rating: number, slot: number): string {
-    if (rating >= slot) {
-      return 'star';
+  get stats(): Array<{ label: string; value: string; hint: string; tone: 'a' | 'b' | 'c' }> {
+    const count = this.partners.length;
+    const active = this.partners.filter((p) => p.isActive).length;
+    const openJobs = this.partners.reduce((s, p) => s + (p.activeApprovedBookingCount ?? 0), 0);
+    return [
+      { label: 'Listed', value: String(count), hint: this.listScope === 'all' ? 'In view' : 'Active only', tone: 'a' },
+      { label: 'Active', value: String(active), hint: 'Profiles on', tone: 'b' },
+      { label: 'Open jobs', value: String(openJobs), hint: 'Approved in progress', tone: 'c' },
+    ];
+  }
+
+  onPartnerSearch(value: string | null | undefined): void {
+    this.searchQuery = String(value ?? '');
+    this.searchChanged$.next(this.searchQuery);
+  }
+
+  onScopeChange(value: 'active' | 'all' | null): void {
+    if (value !== 'active' && value !== 'all') {
+      return;
     }
-    if (rating >= slot - 0.5) {
-      return 'star-half-outline';
+    if (this.listScope === value) {
+      return;
     }
-    return 'star-outline';
+    this.listScope = value;
+    void this.loadPartners();
+  }
+
+  trackByPartnerId(_index: number, p: AdminPartner): string {
+    return p.id;
+  }
+
+  addressLine(partner: AdminPartner): string {
+    return firstAddressLine(partner);
+  }
+
+  serviceTitleList(partner: AdminPartner): string[] {
+    return serviceTitles(partner);
+  }
+
+  async openCreate(): Promise<void> {
+    const modal = await this.modalController.create({
+      component: PartnerFormModalComponent,
+      componentProps: { mode: 'create' },
+      breakpoints: [0, 0.95],
+      initialBreakpoint: 0.95,
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
+    if (data?.saved) {
+      await this.loadPartners();
+    }
+  }
+
+  async openEdit(partner: AdminPartner, event?: Event): Promise<void> {
+    event?.stopPropagation();
+    const modal = await this.modalController.create({
+      component: PartnerFormModalComponent,
+      componentProps: { mode: 'edit', partnerId: partner.id },
+      breakpoints: [0, 0.95],
+      initialBreakpoint: 0.95,
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
+    if (data?.saved) {
+      await this.loadPartners();
+    }
+  }
+
+  async confirmDelete(partner: AdminPartner, event?: Event): Promise<void> {
+    event?.stopPropagation();
+    const alert = await this.alertController.create({
+      header: 'Remove partner?',
+      message: `“${partner.fullName}” will be marked inactive and unmapped. This is not allowed if they have active approved bookings.`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Remove',
+          role: 'destructive',
+          handler: () => {
+            void this.runDelete(partner);
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  private async runDelete(partner: AdminPartner): Promise<void> {
+    try {
+      await this.adminPartnerService.deletePartner(partner.id);
+      await this.presentToast('Partner removed.');
+      await this.loadPartners();
+    } catch (e) {
+      const msg = this.readHttpMessage(
+        e,
+        'Could not remove partner. They may have active approved bookings.',
+      );
+      await this.presentToast(msg);
+    }
+  }
+
+  async onRefresh(event: CustomEvent): Promise<void> {
+    try {
+      await this.loadPartners();
+    } finally {
+      (event.target as { complete?: () => void } | null)?.complete?.();
+    }
+  }
+
+  private async loadPartners(): Promise<void> {
+    this.loading = true;
+    this.loadError = undefined;
+    this.cdr.markForCheck();
+
+    const q = { search: this.searchQuery.trim() || undefined };
+
+    try {
+      if (this.listScope === 'all') {
+        this.partners = await this.adminPartnerService.listAllPartners(q);
+      } else {
+        this.partners = await this.adminPartnerService.listPartners(q);
+      }
+    } catch (e) {
+      this.partners = [];
+      if (e instanceof HttpErrorResponse && e.status === 401) {
+        this.loadError = 'Session expired. Sign in again.';
+      } else {
+        this.loadError = 'Could not load partners.';
+      }
+    } finally {
+      this.loading = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private readHttpMessage(e: unknown, fallback: string): string {
+    if (e instanceof HttpErrorResponse) {
+      const body = e.error;
+      if (body && typeof body === 'object' && 'message' in body) {
+        return String((body as { message: string }).message);
+      }
+      if (typeof body === 'string' && body.trim()) {
+        return body;
+      }
+    }
+    return fallback;
+  }
+
+  private async presentToast(message: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2200,
+      position: 'bottom',
+    });
+    await toast.present();
   }
 }

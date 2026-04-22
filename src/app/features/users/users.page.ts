@@ -31,7 +31,7 @@ export class UsersPage implements OnInit {
   readonly title = 'User Management';
 
   readonly lead =
-    'Customers surfaced from booking activity, plus your current admin session. Use Bookings for full records and actions.';
+    'Customers surfaced from request activity, plus your current admin session. Use Requests for full records and actions.';
 
   readonly focusAreas: Array<{
     icon: string;
@@ -210,7 +210,7 @@ export class UsersPage implements OnInit {
       }
     }
 
-    this.loadError = 'Could not load booking sample. Pull to retry or open Bookings.';
+    this.loadError = 'Could not load booking sample. Pull to retry or open Requests.';
     await this.presentToast('Something went wrong. Please try again.');
   }
 

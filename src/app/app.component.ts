@@ -15,6 +15,7 @@ import { FcmService } from './services/fcm.service';
 export class AppComponent implements OnInit {
   readonly bottomNavItems = [
     { path: '/dashboard', icon: 'home-outline', label: 'Home', exact: true },
+    { path: '/requests', icon: 'git-network-outline', label: 'Requests', exact: false },
     { path: '/partners', icon: 'people-outline', label: 'Partners', exact: false },
     { path: '/services', icon: 'cube-outline', label: 'Services', exact: false },
     { path: '/users', icon: 'person-circle-outline', label: 'Users', exact: false },

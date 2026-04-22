@@ -1,0 +1,132 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button
+        fill="clear"
+        routerLink="/requests"
+        aria-label="Back to requests"
+        class="request-detail-back-btn"
+      >
+        <ion-icon slot="icon-only" name="chevron-back-outline" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Request #{{ id || '—' }}</ion-title>
+    <ion-buttons slot="end">
+      <app-header-menu-button></app-header-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="request-detail-content">
+  <div *ngIf="isLoading" class="request-detail-loading ion-padding ion-text-center">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading request…</p>
+  </div>
+
+  <div
+    *ngIf="!isLoading && !booking"
+    class="request-detail-missing ion-padding ion-text-center"
+  >
+    <p>{{ loadError || ('No request found for #' + id + '.') }}</p>
+    <ion-button [routerLink]="['/requests']">Back to list</ion-button>
+  </div>
+
+  <div *ngIf="!isLoading && booking" class="request-detail-inner">
+    <ion-card class="request-detail-card">
+      <ion-card-content>
+        <div class="request-detail-top">
+          <ion-badge [color]="getStatusColor(booking.status)">{{ booking.status }}</ion-badge>
+        </div>
+        <dl class="request-detail-dl">
+          <div class="request-detail-row">
+            <dt>Service</dt>
+            <dd>{{ booking.service?.title || '—' }}</dd>
+          </div>
+          <div class="request-detail-row">
+            <dt>Location</dt>
+            <dd>{{ booking.address?.fullAddress || '—' }}</dd>
+          </div>
+          <div class="request-detail-row">
+            <dt>Date</dt>
+            <dd>{{ booking.date || '—' }}</dd>
+          </div>
+          <div class="request-detail-row">
+            <dt>Time</dt>
+            <dd>{{ booking.timeSlot || '—' }}</dd>
+          </div>
+          <div
+            class="request-detail-row"
+            *ngIf="booking.user?.fullName || booking.user?.phone || booking.address?.phone"
+          >
+            <dt>Customer</dt>
+            <dd>
+              {{ booking.user?.fullName || '—' }}
+              <ng-container *ngIf="booking.user?.phone || booking.address?.phone">
+                <br />
+                <span class="request-detail-sub">{{ booking.user?.phone || booking.address?.phone }}</span>
+              </ng-container>
+            </dd>
+          </div>
+          <div
+            class="request-detail-row"
+            *ngIf="booking.price !== null && booking.price !== undefined"
+          >
+            <dt>Price</dt>
+            <dd>₹{{ booking.price }}</dd>
+          </div>
+        </dl>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="extra?.dog as dog" class="request-detail-card">
+      <ion-card-header>
+        <ion-card-title>Dog details</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ul class="request-detail-bullets">
+          <li><span class="request-detail-k">Size</span> {{ dog.size }}</li>
+          <li><span class="request-detail-k">Behavior</span> {{ dog.behavior }}</li>
+        </ul>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="extra?.instructions" class="request-detail-card">
+      <ion-card-header>
+        <ion-card-title>Instructions</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <blockquote class="request-detail-instructions">“{{ extra?.instructions }}”</blockquote>
+      </ion-card-content>
+    </ion-card>
+
+    <section
+      *ngIf="booking.status === 'PENDING'"
+      class="request-detail-actions"
+      aria-label="Request actions"
+    >
+      <ion-button expand="block" color="primary" (click)="onApprove()">Approve</ion-button>
+      <ion-button expand="block" color="danger" fill="outline" (click)="onReject()">Reject</ion-button>
+    </section>
+
+    <ion-card
+      *ngIf="booking.status === 'CONFIRMED'"
+      class="request-detail-card request-detail-card--complete-hint"
+    >
+      <ion-card-content>
+        <p class="request-detail-hint">
+          This request is <strong>confirmed</strong> with a partner. When they’ve finished the job,
+          mark it complete so the customer sees the right status.
+        </p>
+        <ion-button
+          expand="block"
+          color="success"
+          (click)="onMarkComplete()"
+          [disabled]="completing"
+        >
+          <ion-spinner *ngIf="completing" name="crescent" slot="start"></ion-spinner>
+          {{ completing ? 'Completing…' : 'Mark service as complete' }}
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

@@ -105,9 +105,4 @@ ion-menu .settings-menu-list ion-item ion-label p {
 
 ion-router-outlet {
   display: block;
-  padding-bottom: calc(56px + env(safe-area-inset-bottom));
-}
-
-ion-router-outlet ion-content {
-  --padding-bottom: calc(56px + env(safe-area-inset-bottom));
 }

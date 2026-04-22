@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Cancel booking</ion-title>
+    <ion-title>Reject request</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="dismiss()" aria-label="Close">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
@@ -18,9 +18,9 @@
   <ng-container *ngIf="step === 'reason'">
     <div class="cancel-hero-spacer" aria-hidden="true"></div>
 
-    <section class="cancel-section cancel-section--summary" aria-label="Booking summary">
+    <section class="cancel-section cancel-section--summary" aria-label="Request summary">
       <div class="cancel-glass-card">
-        <div class="cancel-card-kicker">Booking</div>
+        <div class="cancel-card-kicker">Request</div>
         <div class="cancel-booking-head">
           <span class="cancel-booking-id">#{{ booking.id }}</span>
           <ion-badge color="warning" class="cancel-status-badge" *ngIf="booking.status === 'PENDING'">Pending</ion-badge>
@@ -40,13 +40,13 @@
 
     <section class="cancel-section">
       <h2 class="cancel-section-title">Reason for cancellation</h2>
-      <p class="cancel-section-hint">This will be stored with the booking record</p>
+      <p class="cancel-section-hint">This will be stored with the request record</p>
       <ion-textarea
         class="cancel-textarea"
         label="Reason"
         labelPlacement="stacked"
         autoGrow="true"
-        placeholder="Describe why this booking is being cancelled…"
+        placeholder="Describe why this request is being rejected…"
         [(ngModel)]="reason"
       ></ion-textarea>
 

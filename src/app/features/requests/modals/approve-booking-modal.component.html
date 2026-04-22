@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Approve booking</ion-title>
+    <ion-title>Approve request</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="dismiss()" aria-label="Close">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
@@ -18,9 +18,9 @@
   <ng-container *ngIf="step === 'select_partner'">
     <div class="approve-hero-spacer" aria-hidden="true"></div>
 
-    <section class="approve-section approve-section--summary" aria-label="Booking summary">
+    <section class="approve-section approve-section--summary" aria-label="Request summary">
       <div class="approve-glass-card">
-        <div class="approve-card-kicker">Booking</div>
+        <div class="approve-card-kicker">Request</div>
         <div class="approve-booking-head">
           <span class="approve-booking-id">#{{ booking.id }}</span>
           <ion-badge color="warning" class="approve-status-badge" *ngIf="booking.status === 'PENDING'">Pending</ion-badge>
@@ -35,12 +35,20 @@
           <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
           {{ bookingAddressText() }}
         </p>
+        <p class="approve-booking-service" *ngIf="booking.service?.title">
+          <ion-icon name="cube-outline" aria-hidden="true"></ion-icon>
+          {{ booking.service?.title }}
+        </p>
       </div>
     </section>
 
     <section class="approve-section">
       <h2 class="approve-section-title">Select partner</h2>
-      <p class="approve-section-hint">Search by name, ID, phone, or services</p>
+      <p class="approve-section-hint">
+        Search uses
+        <code class="approve-code">/admin/partners/search</code>
+        — results favor this booking’s service when an id is present.
+      </p>
       <ion-searchbar
         class="approve-searchbar"
         placeholder="Search partners…"
@@ -50,49 +58,70 @@
       ></ion-searchbar>
     </section>
 
-    <div class="approve-loading" *ngIf="isLoadingPartners && partners.length === 0">
+    <div *ngIf="isLoadingPartners" class="approve-loading ion-text-center">
       <ion-spinner name="crescent" color="primary"></ion-spinner>
-      <span>Loading partners…</span>
+      <p>Loading partners…</p>
     </div>
 
-    <ion-list class="approve-partner-list" lines="none">
-      <ion-item
-        class="approve-partner-item"
-        button
-        detail="false"
-        lines="none"
+    <div class="approve-partner-cards" *ngIf="!isLoadingPartners">
+      <ion-card
         *ngFor="let partner of partners; trackBy: trackByPartnerId"
+        class="approve-partner-card"
+        button
         (click)="selectPartner(partner)"
       >
-        <div class="approve-partner-avatar" slot="start" aria-hidden="true">
-          <ion-icon name="storefront-outline"></ion-icon>
-        </div>
-        <ion-label class="approve-partner-label">
-          <div class="approve-partner-top">
-            <span class="approve-partner-name">{{ partner.name || 'Partner' }}</span>
-            <span class="approve-partner-id">#{{ partner.id }}</span>
+        <ion-card-content class="approve-partner-card-content">
+          <div class="approve-partner-card-head">
+            <div class="approve-partner-card-title-block">
+              <h3 class="approve-partner-card-name">{{ partner.fullName }}</h3>
+              <p class="approve-partner-card-id">ID: {{ partner.id }}</p>
+            </div>
           </div>
-          <div class="approve-partner-phone">{{ partner.phone || '—' }}</div>
-          <div class="approve-partner-chips" *ngIf="partner.services?.length">
-            <span class="approve-chip" *ngFor="let s of partner.services | slice:0:4">{{ s }}</span>
-            <span class="approve-chip-more" *ngIf="(partner.services?.length || 0) > 4">
-              +{{ (partner.services?.length || 0) - 4 }}
+
+          <div class="approve-partner-badges">
+            <ion-badge [color]="partner.isActive ? 'success' : 'medium'" class="approve-verify-badge">
+              {{ partner.isActive ? 'Active' : 'Inactive' }}
+            </ion-badge>
+            <ion-badge color="tertiary" class="approve-jobs-badge">
+              {{ partner.activeApprovedBookingCount ?? 0 | number }} open jobs
+            </ion-badge>
+          </div>
+
+          <dl class="approve-partner-mini-dl">
+            <div class="approve-partner-mini-row">
+              <dt>Phone</dt>
+              <dd>{{ partner.phone || '—' }}</dd>
+            </div>
+            <div class="approve-partner-mini-row">
+              <dt>Email</dt>
+              <dd>{{ partner.email || '—' }}</dd>
+            </div>
+            <div class="approve-partner-mini-row">
+              <dt>Location</dt>
+              <dd>{{ addressLine(partner) }}</dd>
+            </div>
+          </dl>
+
+          <div class="approve-partner-chips" *ngIf="serviceNames(partner).length">
+            <span class="approve-chip" *ngFor="let t of serviceNames(partner) | slice: 0 : 6">{{ t }}</span>
+            <span class="approve-chip-more" *ngIf="serviceNames(partner).length > 6">
+              +{{ serviceNames(partner).length - 6 }} more
             </span>
           </div>
-        </ion-label>
-        <ion-icon slot="end" class="approve-partner-chevron" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
-      </ion-item>
-    </ion-list>
+
+          <div class="approve-partner-tap-hint" aria-hidden="true">
+            Tap to select
+            <ion-icon name="chevron-forward-outline" class="approve-partner-chevron"></ion-icon>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
 
     <div class="approve-empty" *ngIf="!isLoadingPartners && partners.length === 0">
       <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
       <p>No partners found</p>
-      <ion-text color="medium"><p class="approve-empty-hint">Try another search term</p></ion-text>
+      <ion-text color="medium"><p class="approve-empty-hint">Try another search term or check the service filter</p></ion-text>
     </div>
-
-    <ion-infinite-scroll [disabled]="!partnersHasMore" threshold="150px" (ionInfinite)="loadMorePartners($event)">
-      <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading more…"></ion-infinite-scroll-content>
-    </ion-infinite-scroll>
   </ng-container>
 
   <ng-container *ngIf="step === 'confirm'">
@@ -100,10 +129,10 @@
 
     <section class="approve-section approve-section--confirm">
       <h2 class="approve-section-title">Confirm approval</h2>
-      <p class="approve-section-hint">Review details before assigning this booking</p>
+      <p class="approve-section-hint">Review details before assigning this request</p>
 
       <div class="approve-confirm-stack">
-        <div class="approve-confirm-panel">
+        <div class="approve-confirm-panel" *ngIf="selectedPartner">
           <div class="approve-panel-header">
             <div class="approve-panel-icon" aria-hidden="true">
               <ion-icon name="business-outline"></ion-icon>
@@ -113,11 +142,31 @@
           <dl class="approve-dl">
             <div class="approve-dl-row">
               <dt>Name</dt>
-              <dd>{{ selectedPartner?.name || '—' }}</dd>
+              <dd>{{ selectedPartner.fullName }}</dd>
+            </div>
+            <div class="approve-dl-row">
+              <dt>Partner ID</dt>
+              <dd>{{ selectedPartner.id }}</dd>
+            </div>
+            <div class="approve-dl-row">
+              <dt>Status</dt>
+              <dd>{{ selectedPartner.isActive ? 'Active' : 'Inactive' }}</dd>
             </div>
             <div class="approve-dl-row">
               <dt>Phone</dt>
-              <dd>{{ selectedPartner?.phone || '—' }}</dd>
+              <dd>{{ selectedPartner.phone || '—' }}</dd>
+            </div>
+            <div class="approve-dl-row">
+              <dt>Email</dt>
+              <dd>{{ selectedPartner.email || '—' }}</dd>
+            </div>
+            <div class="approve-dl-row">
+              <dt>Address</dt>
+              <dd>{{ addressLine(selectedPartner) }}</dd>
+            </div>
+            <div class="approve-dl-row" *ngIf="serviceNames(selectedPartner).length">
+              <dt>Services</dt>
+              <dd>{{ serviceNames(selectedPartner).join(', ') }}</dd>
             </div>
           </dl>
         </div>

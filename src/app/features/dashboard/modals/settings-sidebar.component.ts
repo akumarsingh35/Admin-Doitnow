@@ -29,16 +29,16 @@ export class SettingsSidebarComponent {
       title: 'Workspace',
       items: [
         {
-          label: 'Bookings',
-          icon: 'calendar-outline',
+          label: 'Dashboard',
+          icon: 'grid-outline',
           path: '/dashboard',
-          description: 'Queue, approve, and reject',
+          description: 'Overview & key metrics',
         },
         {
           label: 'Requests',
           icon: 'git-network-outline',
           path: '/requests',
-          description: 'Transactions & operational flows',
+          description: 'Queue, approve, and reject',
         },
       ],
     },

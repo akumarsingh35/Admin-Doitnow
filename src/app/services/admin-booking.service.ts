@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
@@ -22,6 +22,7 @@ export interface BookingAddress {
 }
 
 export interface BookingService {
+  id?: string | null;
   title?: string | null;
 }
 
@@ -46,11 +47,41 @@ export interface BookingsResponse {
   };
 }
 
+/** 400/404 message from `PATCH /admin/bookings/:id/complete` and similar. */
+export function bookingHttpErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof HttpErrorResponse) {
+    const b = error.error;
+    if (b && typeof b === 'object' && 'message' in b) {
+      return String((b as { message: unknown }).message);
+    }
+    if (typeof b === 'string' && b.trim()) {
+      return b;
+    }
+  }
+  return (error as { message?: string })?.message ?? fallback;
+}
+
+function unwrapCompleteBookingResponse(body: unknown): Booking {
+  if (body && typeof body === 'object' && 'data' in body) {
+    const d = (body as { data: unknown }).data;
+    if (d && typeof d === 'object') {
+      return d as Booking;
+    }
+  }
+  return body as Booking;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AdminBookingService {
   constructor(private readonly http: HttpClient) {}
+
+  getBookingById(id: string): Observable<Booking> {
+    return this.http.get<Booking>(
+      `${environment.apiUrl}/admin/bookings/${encodeURIComponent(id)}`,
+    );
+  }
 
   getBookings(
     page: number,
@@ -85,5 +116,13 @@ export class AdminBookingService {
         reason,
       })
       .pipe(map(() => undefined));
+  }
+
+  /**
+   * `PATCH /admin/bookings/:id/complete` — no body, Bearer admin token; 200 returns updated booking.
+   */
+  completeBooking(id: string): Observable<Booking> {
+    const url = `${environment.apiUrl}/admin/bookings/${encodeURIComponent(id)}/complete`;
+    return this.http.patch<unknown>(url, null).pipe(map((res) => unwrapCompleteBookingResponse(res)));
   }
 }

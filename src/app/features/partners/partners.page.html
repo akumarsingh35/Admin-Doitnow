@@ -1,13 +1,31 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>{{ title }}</ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="end" class="partners-toolbar-actions">
+      <ion-button
+        class="partners-add-btn"
+        fill="solid"
+        color="primary"
+        size="small"
+        (click)="openCreate()"
+        aria-label="Add partner"
+      >
+        <ion-icon name="add-outline" slot="start" class="partners-add-icon" aria-hidden="true"></ion-icon>
+        <span class="partners-add-text">
+          <span class="partners-add-long">Add Partner</span>
+          <span class="partners-add-short">Add</span>
+        </span>
+      </ion-button>
       <app-header-menu-button></app-header-menu-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="partners-content" [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <div class="partners-canvas" aria-hidden="true">
     <div class="partners-canvas-glow partners-canvas-glow--1"></div>
     <div class="partners-canvas-glow partners-canvas-glow--2"></div>
@@ -19,7 +37,7 @@
       <div class="partners-hero-inner">
         <div class="partners-hero-top">
           <span class="partners-hero-badge">Network</span>
-          <span class="partners-hero-version">Directory</span>
+          <span class="partners-hero-version">Live API</span>
         </div>
         <h2 class="partners-hero-title">Partners</h2>
         <p class="partners-hero-lead">{{ lead }}</p>
@@ -40,58 +58,106 @@
       </div>
     </div>
 
-    <section class="partners-workers" aria-labelledby="workers-heading">
-      <header class="partners-workers-head">
-        <h3 id="workers-heading" class="partners-workers-title">Workers</h3>
-        <p class="partners-workers-sub">Dummy profiles — name, rating, role, and service area for UI reference.</p>
+    <ion-segment
+      class="partners-scope-segment"
+      [value]="listScope"
+      (ionChange)="onScopeChange($any($event.detail.value))"
+      aria-label="Partner list scope"
+    >
+      <ion-segment-button value="active">
+        <ion-label>Active only</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="all">
+        <ion-label>All</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <section class="partners-directory" aria-labelledby="directory-heading">
+      <header class="partners-directory-head">
+        <h3 id="directory-heading" class="partners-directory-title">Partner list</h3>
+        <p class="partners-directory-sub">
+          Search matches name, email, phone, id, or mapped service titles (server-side).
+        </p>
       </header>
 
-      <ul class="partners-worker-list">
-        <li *ngFor="let w of workers; trackBy: trackByWorkerId" class="partners-worker-item">
-          <article
-            class="partners-worker-card"
-            [class.partners-worker-card--indigo]="w.tone === 'indigo'"
-            [class.partners-worker-card--violet]="w.tone === 'violet'"
-            [class.partners-worker-card--amber]="w.tone === 'amber'"
-          >
-            <div class="partners-worker-top">
-              <div class="partners-worker-avatar" aria-hidden="true">{{ initials(w.name) }}</div>
-              <div class="partners-worker-headline">
-                <div class="partners-worker-name-row">
-                  <h4 class="partners-worker-name">{{ w.name }}</h4>
-                  <span class="partners-worker-zone">{{ w.zone }}</span>
-                </div>
-                <p class="partners-worker-role">{{ w.role }}</p>
-                <div class="partners-worker-rating" [attr.aria-label]="w.rating + ' out of 5 stars, ' + w.reviewCount + ' reviews'">
-                  <div class="partners-worker-stars" aria-hidden="true">
-                    <ion-icon
-                      *ngFor="let slot of starSlots"
-                      [name]="starIcon(w.rating, slot)"
-                      class="partners-worker-star"
-                    ></ion-icon>
-                  </div>
-                  <span class="partners-worker-rating-num">{{ w.rating.toFixed(1) }}</span>
-                  <span class="partners-worker-reviews">({{ w.reviewCount }} reviews)</span>
-                </div>
+      <ion-searchbar
+        class="partners-searchbar"
+        placeholder="Search partners…"
+        inputmode="search"
+        [debounce]="400"
+        (ionInput)="onPartnerSearch($any($event.detail.value))"
+        aria-label="Search partners"
+      ></ion-searchbar>
+
+      <div *ngIf="loading" class="partners-loading ion-text-center" aria-live="polite">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>Loading partners…</p>
+      </div>
+
+      <p *ngIf="loadError" class="partners-page-error ion-padding-horizontal" role="alert">{{ loadError }}</p>
+
+      <div class="partners-card-list" *ngIf="!loading">
+        <ion-card *ngFor="let partner of partners; trackBy: trackByPartnerId" class="partners-partner-card">
+          <ion-card-content class="partners-partner-card-content">
+            <div class="partners-partner-card-head">
+              <div class="partners-partner-card-title-block">
+                <h3 class="partners-partner-card-name">{{ partner.fullName }}</h3>
+                <p class="partners-partner-card-id">ID: {{ partner.id }}</p>
+              </div>
+              <div class="partners-partner-actions">
+                <ion-button fill="clear" size="small" (click)="openEdit(partner, $event)" aria-label="Edit partner">
+                  <ion-icon slot="icon-only" name="create-outline" aria-hidden="true"></ion-icon>
+                </ion-button>
+                <ion-button
+                  fill="clear"
+                  size="small"
+                  color="danger"
+                  (click)="confirmDelete(partner, $event)"
+                  aria-label="Remove partner"
+                >
+                  <ion-icon slot="icon-only" name="trash-outline" aria-hidden="true"></ion-icon>
+                </ion-button>
               </div>
             </div>
 
-            <p class="partners-worker-desc">{{ w.description }}</p>
-
-            <div class="partners-worker-meta">
-              <span class="partners-worker-meta-item">
-                <ion-icon name="checkmark-done-outline" aria-hidden="true"></ion-icon>
-                {{ w.completedJobs }} jobs completed
-              </span>
-              <span class="partners-worker-badge">Sample</span>
+            <div class="partners-partner-badges">
+              <ion-badge [color]="partner.isActive ? 'success' : 'medium'" class="partners-verify-badge">
+                {{ partner.isActive ? 'Active' : 'Inactive' }}
+              </ion-badge>
+              <ion-badge color="tertiary" class="partners-jobs-badge">
+                {{ partner.activeApprovedBookingCount ?? 0 | number }} open jobs
+              </ion-badge>
             </div>
-          </article>
-        </li>
-      </ul>
-    </section>
 
-    <p class="partners-foot">
-      Replace dummy workers with live partner API data, filters, and actions when your backend is connected.
-    </p>
+            <dl class="partners-partner-mini-dl">
+              <div class="partners-partner-mini-row">
+                <dt>Phone</dt>
+                <dd>{{ partner.phone || '—' }}</dd>
+              </div>
+              <div class="partners-partner-mini-row">
+                <dt>Email</dt>
+                <dd>{{ partner.email || '—' }}</dd>
+              </div>
+              <div class="partners-partner-mini-row">
+                <dt>Location</dt>
+                <dd>{{ addressLine(partner) }}</dd>
+              </div>
+            </dl>
+
+            <div class="partners-partner-chips" *ngIf="serviceTitleList(partner).length">
+              <span class="partners-chip" *ngFor="let t of serviceTitleList(partner) | slice: 0 : 8">{{ t }}</span>
+              <span class="partners-chip-more" *ngIf="serviceTitleList(partner).length > 8">
+                +{{ serviceTitleList(partner).length - 8 }} more
+              </span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+
+      <div *ngIf="!loading && partners.length === 0 && !loadError" class="partners-empty ion-padding ion-text-center">
+        <ion-icon name="search-outline" aria-hidden="true"></ion-icon>
+        <p>No partners match your filters.</p>
+      </div>
+    </section>
   </div>
 </ion-content>

@@ -21,7 +21,16 @@ import { AuthService } from '../../services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ServicesPage implements OnInit {
+  readonly pageTitle = 'Services';
+
   services: AdminService[] = [];
+  /** Client-side filter for the catalog list */
+  searchQuery = '';
+
+  /** Catalog table only includes services the API marks active. */
+  private get activeCatalogServices(): AdminService[] {
+    return this.services.filter((s) => s.isActive === true);
+  }
   loading = false;
   isModalOpen = false;
   isEditMode = false;
@@ -44,15 +53,48 @@ export class ServicesPage implements OnInit {
 
   /** Shown in hero metrics when data is loaded */
   get catalogTotal(): number {
-    return this.services.length;
+    return this.activeCatalogServices.length;
   }
 
   get catalogPopular(): number {
-    return this.services.filter((s) => s.isPopular).length;
+    return this.activeCatalogServices.filter((s) => s.isPopular).length;
   }
 
   get catalogWithMedia(): number {
-    return this.services.filter((s) => !!(s.imageUrl || s.iconUrl)).length;
+    return this.activeCatalogServices.filter((s) => !!(s.imageUrl || s.iconUrl)).length;
+  }
+
+  get filteredServices(): AdminService[] {
+    const list = this.activeCatalogServices;
+    const q = this.searchQuery.trim().toLowerCase();
+    if (!q) {
+      return list;
+    }
+    return list.filter((s) => {
+      const blob = [s.title, s.subtitle, s.description, s.tag, s.slug, s.id]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return blob.includes(q);
+    });
+  }
+
+  onSearchInput(value: string | null | undefined): void {
+    this.searchQuery = String(value ?? '');
+    this.cdr.markForCheck();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.cdr.markForCheck();
+  }
+
+  trackByServiceId(_index: number, s: AdminService): string {
+    return s.id;
+  }
+
+  displayTypeLabel(s: AdminService): string {
+    return s.displayType === 'ICON' ? 'Icon' : 'Image';
   }
 
   constructor(

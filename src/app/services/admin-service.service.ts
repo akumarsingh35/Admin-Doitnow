@@ -9,6 +9,9 @@ export type ServiceDisplayType = 'IMAGE' | 'ICON';
 
 export interface AdminService {
   id: string;
+  /** Some list APIs expose Mongo-style _id; prefer `id` in app code via `getCatalogServiceId()`. */
+  _id?: string;
+  serviceId?: string;
   slug?: string;
   title: string;
   subtitle?: string | null;
@@ -21,6 +24,7 @@ export interface AdminService {
   colorClass?: string | null;
   tag?: string | null;
   isPopular: boolean;
+  isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -28,6 +32,12 @@ export interface AdminService {
 export interface ListServicesResponse {
   message: string;
   data: AdminService[];
+}
+
+/** Stable catalog primary key for API payloads (never use `title` as an id). */
+export function getCatalogServiceId(s: AdminService): string {
+  const raw = s.id ?? s.serviceId ?? s._id;
+  return raw != null && raw !== '' ? String(raw) : '';
 }
 
 export interface CreateServicePayload {

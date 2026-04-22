@@ -1,0 +1,146 @@
+<ion-header class="partner-form-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="dismiss()" aria-label="Close">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ headerLabel }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        type="button"
+        fill="solid"
+        color="primary"
+        [disabled]="saving || !form || form.invalid || loadingPartner"
+        (click)="submit()"
+      >
+        <ion-spinner *ngIf="saving" name="crescent" color="light" slot="start"></ion-spinner>
+        {{ mode === 'create' ? 'Create' : 'Save' }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="partner-form-content" [fullscreen]="true">
+  <div *ngIf="loadingPartner" class="partner-form-center">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Loading partner…</p>
+  </div>
+
+  <p *ngIf="loadError" class="ion-padding" color="medium" role="alert">{{ loadError }}</p>
+
+  <form *ngIf="form && !loadingPartner" [formGroup]="form" novalidate class="partner-form" (ngSubmit)="submit()">
+    <section class="partner-form-block">
+      <h3 class="partner-form-h">Profile</h3>
+      <ion-list lines="none" class="partner-form-list">
+        <ion-item>
+          <ion-input
+            label="Full name"
+            labelPlacement="stacked"
+            formControlName="fullName"
+            autocomplete="name"
+            inputmode="text"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="Phone"
+            labelPlacement="stacked"
+            formControlName="phone"
+            autocomplete="tel"
+            inputmode="tel"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="Email"
+            labelPlacement="stacked"
+            formControlName="email"
+            type="email"
+            autocomplete="email"
+            inputmode="email"
+          ></ion-input>
+        </ion-item>
+        <ion-item *ngIf="mode === 'edit'" lines="none">
+          <ion-label>Active</ion-label>
+          <ion-toggle slot="end" formControlName="isActive" aria-label="Partner active"></ion-toggle>
+        </ion-item>
+      </ion-list>
+    </section>
+
+    <section class="partner-form-block">
+      <h3 class="partner-form-h">Address</h3>
+      <ion-list lines="none" class="partner-form-list">
+        <ion-item>
+          <ion-input
+            label="Label"
+            labelPlacement="stacked"
+            formControlName="label"
+            placeholder="e.g. Home Base"
+            inputmode="text"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-textarea
+            label="Full address"
+            labelPlacement="stacked"
+            formControlName="fullAddress"
+            placeholder="Flat, street, building, area"
+            rows="3"
+            auto-grow="true"
+            inputmode="text"
+          ></ion-textarea>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="City"
+            labelPlacement="stacked"
+            formControlName="city"
+            autocomplete="address-level2"
+            inputmode="text"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="State"
+            labelPlacement="stacked"
+            formControlName="state"
+            autocomplete="address-level1"
+            inputmode="text"
+          ></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input
+            label="Pincode"
+            labelPlacement="stacked"
+            formControlName="pincode"
+            autocomplete="postal-code"
+            inputmode="numeric"
+          ></ion-input>
+        </ion-item>
+      </ion-list>
+    </section>
+
+    <section class="partner-form-block">
+      <h3 class="partner-form-h">Mapped services</h3>
+      <p class="partner-form-hint">Sends catalog <strong>service ids</strong> in <code>serviceIds</code> — not titles.</p>
+      <div *ngIf="loadingServices" class="partner-form-center partner-form-center--sm">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+      <ion-list *ngIf="!loadingServices" lines="none" class="partner-form-list partner-form-svc-list">
+        <ion-item *ngFor="let s of servicesOptions; trackBy: trackByServiceId">
+          <ion-checkbox
+            [checked]="isServiceSelected(s.serviceId)"
+            (ionChange)="toggleService(s.serviceId, $event)"
+            labelPlacement="end"
+            [ariaLabel]="'Map service ' + s.serviceId + ': ' + s.title"
+            >{{ s.title }}</ion-checkbox
+          >
+        </ion-item>
+        <ion-item *ngIf="servicesOptions.length === 0" lines="none">
+          <ion-label class="ion-text-wrap" color="medium">No services in catalog. Add services first.</ion-label>
+        </ion-item>
+      </ion-list>
+    </section>
+  </form>
+</ion-content>
