@@ -407,7 +407,12 @@
             <p class="services-modal-block-hint">Tagging, theme class, and featured placement.</p>
             <div class="services-modal-panel">
               <ion-item class="services-modal-item" lines="none">
-                <ion-input label="Color class" labelPlacement="stacked" formControlName="colorClass" autocomplete="off"></ion-input>
+                <ion-select label="Color class" labelPlacement="stacked" interface="popover" formControlName="colorClass">
+                  <ion-select-option value="">None</ion-select-option>
+                  <ion-select-option *ngFor="let color of colorClassOptions" [value]="color">
+                    {{ color }}
+                  </ion-select-option>
+                </ion-select>
               </ion-item>
               <ion-item class="services-modal-item" lines="none">
                 <ion-input label="Tag" labelPlacement="stacked" formControlName="tag" autocomplete="off"></ion-input>

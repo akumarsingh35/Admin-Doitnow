@@ -22,6 +22,29 @@ import { AuthService } from '../../services/auth.service';
 })
 export class ServicesPage implements OnInit {
   readonly pageTitle = 'Services';
+  readonly colorClassOptions = [
+    'amber',
+    'blue',
+    'cyan',
+    'emerald',
+    'gray',
+    'green',
+    'indigo',
+    'lime',
+    'mint',
+    'neutral',
+    'orange',
+    'peach',
+    'purple',
+    'red',
+    'rose',
+    'sky',
+    'slate',
+    'steel',
+    'teal',
+    'violet',
+    'yellow',
+  ] as const;
 
   services: AdminService[] = [];
   /** Client-side filter for the catalog list */
@@ -186,7 +209,7 @@ export class ServicesPage implements OnInit {
       imageUrl: service.imageUrl ?? '',
       iconUrl: service.iconUrl ?? '',
       displayType: service.displayType ?? 'IMAGE',
-      colorClass: service.colorClass ?? '',
+      colorClass: this.normalizeColorClass(service.colorClass) ?? '',
       tag: service.tag ?? '',
       isPopular: Boolean(service.isPopular),
     });
@@ -207,16 +230,38 @@ export class ServicesPage implements OnInit {
   onSelectImage(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
+    if (this.imagePreviewUrl) {
+      URL.revokeObjectURL(this.imagePreviewUrl);
+    }
+    if (!this.isValidUploadFile(file)) {
+      this.imageFile = null;
+      this.imagePreviewUrl = null;
+      input.value = '';
+      void this.presentToast('Selected image file is empty or invalid.');
+      this.cdr.markForCheck();
+      return;
+    }
     this.imageFile = file;
-    this.imagePreviewUrl = file ? URL.createObjectURL(file) : null;
+    this.imagePreviewUrl = URL.createObjectURL(file);
     this.cdr.markForCheck();
   }
 
   onSelectIcon(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0] ?? null;
+    if (this.iconPreviewUrl) {
+      URL.revokeObjectURL(this.iconPreviewUrl);
+    }
+    if (!this.isValidUploadFile(file)) {
+      this.iconFile = null;
+      this.iconPreviewUrl = null;
+      input.value = '';
+      void this.presentToast('Selected icon file is empty or invalid.');
+      this.cdr.markForCheck();
+      return;
+    }
     this.iconFile = file;
-    this.iconPreviewUrl = file ? URL.createObjectURL(file) : null;
+    this.iconPreviewUrl = URL.createObjectURL(file);
     this.cdr.markForCheck();
   }
 
@@ -293,7 +338,7 @@ export class ServicesPage implements OnInit {
         imageUrl: String(raw.imageUrl ?? '').trim() || undefined,
         iconUrl: String(raw.iconUrl ?? '').trim() || undefined,
         displayType: raw.displayType || undefined,
-        colorClass: String(raw.colorClass ?? '').trim() || undefined,
+        colorClass: this.normalizeColorClass(raw.colorClass),
         tag: String(raw.tag ?? '').trim() || undefined,
         isPopular: Boolean(raw.isPopular),
       };
@@ -310,11 +355,11 @@ export class ServicesPage implements OnInit {
         };
         const createdId = created?.data?.id;
         if (createdId) {
-          if (this.imageFile) {
+          if (this.isValidUploadFile(this.imageFile)) {
             const img = await this.adminServiceService.uploadServiceImage(createdId, this.imageFile);
             this.form.patchValue({ imageUrl: img.data.imageUrl });
           }
-          if (this.iconFile) {
+          if (this.isValidUploadFile(this.iconFile)) {
             const ic = await this.adminServiceService.uploadServiceIcon(createdId, this.iconFile);
             this.form.patchValue({ iconUrl: ic.data.iconUrl });
           }
@@ -331,11 +376,11 @@ export class ServicesPage implements OnInit {
         };
         await this.adminServiceService.updateService(id, updatePayload);
 
-        if (this.imageFile) {
+        if (this.isValidUploadFile(this.imageFile)) {
           const img = await this.adminServiceService.uploadServiceImage(id, this.imageFile);
           this.form.patchValue({ imageUrl: img.data.imageUrl });
         }
-        if (this.iconFile) {
+        if (this.isValidUploadFile(this.iconFile)) {
           const ic = await this.adminServiceService.uploadServiceIcon(id, this.iconFile);
           this.form.patchValue({ iconUrl: ic.data.iconUrl });
         }
@@ -415,6 +460,20 @@ export class ServicesPage implements OnInit {
     this.iconPreviewUrl = null;
     this.isDeletingImage = false;
     this.isDeletingIcon = false;
+  }
+
+  private isValidUploadFile(file: File | null): file is File {
+    return file instanceof File && file.size > 0;
+  }
+
+  private normalizeColorClass(value: unknown): string | undefined {
+    const normalized = String(value ?? '').trim().toLowerCase();
+    if (!normalized) {
+      return undefined;
+    }
+    return this.colorClassOptions.includes(normalized as (typeof this.colorClassOptions)[number])
+      ? normalized
+      : undefined;
   }
 
   private async handleApiError(error: unknown): Promise<void> {

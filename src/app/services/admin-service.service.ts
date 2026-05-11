@@ -98,8 +98,9 @@ export class AdminServiceService {
   }
 
   async uploadServiceImage(id: string, file: File): Promise<{ message: string; data: { imageUrl: string } }> {
+    this.assertValidUploadFile(file);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file, file.name || 'service-image');
 
     return firstValueFrom(
       this.http.post<{ message: string; data: { imageUrl: string } }>(
@@ -111,8 +112,9 @@ export class AdminServiceService {
   }
 
   async uploadServiceIcon(id: string, file: File): Promise<{ message: string; data: { iconUrl: string } }> {
+    this.assertValidUploadFile(file);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file, file.name || 'service-icon');
 
     return firstValueFrom(
       this.http.post<{ message: string; data: { iconUrl: string } }>(
@@ -147,5 +149,11 @@ export class AdminServiceService {
     return accessToken
       ? new HttpHeaders({ Authorization: `Bearer ${accessToken}` })
       : new HttpHeaders();
+  }
+
+  private assertValidUploadFile(file: File): void {
+    if (!(file instanceof File) || file.size <= 0) {
+      throw new Error('Invalid file selected for upload.');
+    }
   }
 }
