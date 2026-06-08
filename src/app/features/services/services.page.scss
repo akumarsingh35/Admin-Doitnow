@@ -650,6 +650,13 @@
   opacity: 0.85;
 }
 
+.services-card-addon-summary {
+  margin: 0 0 0.5rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ion-color-tertiary) 70%, var(--ion-text-color));
+}
+
 .services-card-desc {
   margin: 0 0 0.85rem;
   font-size: 0.8rem;
@@ -979,6 +986,78 @@
   font-weight: 600;
   text-transform: none;
   --border-radius: 12px;
+}
+
+.services-modal-block-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.services-addon-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 1rem;
+  border-radius: 16px;
+  text-align: center;
+  color: var(--ion-color-medium);
+  background: color-mix(in srgb, var(--ion-color-medium) 8%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
+
+  ion-icon {
+    font-size: 1.4rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+}
+
+.services-addon-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--ion-color-primary) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ion-color-primary) 14%, transparent);
+}
+
+.services-addon-group-head,
+.services-addon-options-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.services-addon-group-head strong {
+  font-size: 0.9rem;
+}
+
+.services-addon-options-head span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+}
+
+.services-addon-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.65rem;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--ion-background-color) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 12%, transparent);
 }
 
 .services-submit-row {

@@ -6,6 +6,30 @@ import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
 export type ServiceDisplayType = 'IMAGE' | 'ICON';
+export type AddonSelectionType = 'SINGLE' | 'MULTI';
+
+export interface AdminServiceAddonItem {
+  id?: string;
+  label: string;
+  description?: string | null;
+  price: number;
+  currency?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+}
+
+export interface AdminServiceAddonGroup {
+  id?: string;
+  title: string;
+  helpText?: string | null;
+  selectionType?: AddonSelectionType;
+  minSelection?: number;
+  maxSelection?: number | null;
+  isRequired?: boolean;
+  sortOrder?: number;
+  isActive?: boolean;
+  addons: AdminServiceAddonItem[];
+}
 
 export interface AdminService {
   id: string;
@@ -27,6 +51,7 @@ export interface AdminService {
   isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  addonGroups?: AdminServiceAddonGroup[];
 }
 
 export interface ListServicesResponse {
@@ -52,6 +77,7 @@ export interface CreateServicePayload {
   colorClass?: string;
   tag?: string;
   isPopular: boolean;
+  addonGroups?: AdminServiceAddonGroup[];
 }
 
 export type UpdateServicePayload = Partial<CreateServicePayload>;
@@ -138,6 +164,19 @@ export class AdminServiceService {
     return firstValueFrom(
       this.http.delete<{ message: string; data: { iconUrl: null } }>(
         `${environment.apiUrl}/admin/services/${encodeURIComponent(id)}/icon`,
+        { headers: this.buildAuthHeaders() },
+      ),
+    );
+  }
+
+  async replaceServiceAddons(
+    id: string,
+    addonGroups: AdminServiceAddonGroup[],
+  ): Promise<{ message: string; data: { id: string } }> {
+    return firstValueFrom(
+      this.http.put<{ message: string; data: { id: string } }>(
+        `${environment.apiUrl}/admin/services/${encodeURIComponent(id)}/addons`,
+        { addonGroups },
         { headers: this.buildAuthHeaders() },
       ),
     );

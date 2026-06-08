@@ -179,6 +179,8 @@
               <span class="services-card-price-label">starting at</span>
             </div>
 
+            <p class="services-card-addon-summary" *ngIf="addonSummary(service)">{{ addonSummary(service) }}</p>
+
             <p class="services-card-desc" *ngIf="service.description">{{ service.description }}</p>
 
             <div class="services-card-footer">
@@ -300,6 +302,140 @@
                   </ion-select-option>
                 </ion-select>
               </ion-item>
+            </div>
+          </section>
+
+          <section class="services-modal-block" aria-labelledby="svc-addons">
+            <div class="services-modal-block-head">
+              <div>
+                <h3 id="svc-addons" class="services-modal-block-title">Add-on options</h3>
+                <p class="services-modal-block-hint">
+                  Optional priced choices customers pick during booking (e.g. vehicle type, extra tasks).
+                </p>
+              </div>
+              <ion-button size="small" fill="outline" type="button" [disabled]="isSubmitting" (click)="addAddonGroup()">
+                <ion-icon name="add-outline" slot="start" aria-hidden="true"></ion-icon>
+                Add group
+              </ion-button>
+            </div>
+
+            <div class="services-addon-empty" *ngIf="addonGroupsForm.length === 0">
+              <ion-icon name="options-outline" aria-hidden="true"></ion-icon>
+              <p>No add-on groups yet. Add one when this service needs extra priced options.</p>
+            </div>
+
+            <div
+              class="services-addon-group"
+              *ngFor="let group of addonGroupsForm.controls; let groupIndex = index"
+              [formGroup]="$any(group)"
+            >
+              <div class="services-addon-group-head">
+                <strong>Group {{ groupIndex + 1 }}</strong>
+                <ion-button
+                  size="small"
+                  fill="clear"
+                  color="danger"
+                  type="button"
+                  [disabled]="isSubmitting"
+                  (click)="removeAddonGroup(groupIndex)"
+                >
+                  Remove group
+                </ion-button>
+              </div>
+
+              <div class="services-modal-panel">
+                <ion-item class="services-modal-item" lines="none">
+                  <ion-input label="Group title" labelPlacement="stacked" formControlName="title"></ion-input>
+                </ion-item>
+                <ion-item class="services-modal-item" lines="none">
+                  <ion-input label="Help text" labelPlacement="stacked" formControlName="helpText"></ion-input>
+                </ion-item>
+                <ion-item class="services-modal-item" lines="none">
+                  <ion-select
+                    label="Selection type"
+                    labelPlacement="stacked"
+                    formControlName="selectionType"
+                    interface="action-sheet"
+                    (ionChange)="onAddonSelectionTypeChange(groupIndex)"
+                  >
+                    <ion-select-option *ngFor="let opt of addonSelectionTypeOptions" [value]="opt.value">
+                      {{ opt.label }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-item>
+                <ion-item class="services-modal-item" lines="none">
+                  <ion-input
+                    type="number"
+                    inputmode="numeric"
+                    label="Minimum selections"
+                    labelPlacement="stacked"
+                    formControlName="minSelection"
+                  ></ion-input>
+                </ion-item>
+                <ion-item class="services-modal-item" lines="none" *ngIf="group.get('selectionType')?.value !== 'SINGLE'">
+                  <ion-input
+                    type="number"
+                    inputmode="numeric"
+                    label="Maximum selections (optional)"
+                    labelPlacement="stacked"
+                    formControlName="maxSelection"
+                  ></ion-input>
+                </ion-item>
+                <ion-item class="services-modal-item services-modal-item--toggle" lines="none">
+                  <ion-toggle
+                    formControlName="isRequired"
+                    justify="space-between"
+                    (ionChange)="onAddonRequiredToggle(groupIndex)"
+                  >
+                    Required for booking
+                  </ion-toggle>
+                </ion-item>
+              </div>
+
+              <div class="services-addon-options-head">
+                <span>Options with price</span>
+                <ion-button
+                  size="small"
+                  fill="outline"
+                  type="button"
+                  [disabled]="isSubmitting"
+                  (click)="addAddonOption(groupIndex)"
+                >
+                  Add option
+                </ion-button>
+              </div>
+
+              <div
+                class="services-addon-option"
+                *ngFor="let addon of addonItemsForm(groupIndex).controls; let addonIndex = index"
+                [formGroup]="$any(addon)"
+              >
+                <ion-item class="services-modal-item" lines="none">
+                  <ion-input label="Option label" labelPlacement="stacked" formControlName="label"></ion-input>
+                </ion-item>
+                <ion-item class="services-modal-item" lines="none">
+                  <ion-input label="Description" labelPlacement="stacked" formControlName="description"></ion-input>
+                </ion-item>
+                <ion-item class="services-modal-item" lines="none">
+                  <ion-input
+                    type="number"
+                    inputmode="decimal"
+                    label="Price"
+                    labelPlacement="stacked"
+                    formControlName="price"
+                  ></ion-input>
+                </ion-item>
+                <ion-button
+                  size="small"
+                  fill="clear"
+                  color="danger"
+                  type="button"
+                  [disabled]="isSubmitting || addonItemsForm(groupIndex).length <= 1"
+                  (click)="removeAddonOption(groupIndex, addonIndex)"
+                >
+                  Remove option
+                </ion-button>
+              </div>
             </div>
           </section>
 

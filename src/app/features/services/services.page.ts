@@ -1,12 +1,15 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 
 import {
   AdminService,
+  AdminServiceAddonGroup,
+  AdminServiceAddonItem,
   AdminServiceService,
+  AddonSelectionType,
   CreateServicePayload,
   ServiceDisplayType,
   UpdateServicePayload,
@@ -74,6 +77,11 @@ export class ServicesPage implements OnInit {
     { value: 'ICON', label: 'ICON' },
   ];
 
+  readonly addonSelectionTypeOptions: Array<{ value: AddonSelectionType; label: string }> = [
+    { value: 'MULTI', label: 'Multiple choices' },
+    { value: 'SINGLE', label: 'Single choice' },
+  ];
+
   /** Shown in hero metrics when data is loaded */
   get catalogTotal(): number {
     return this.activeCatalogServices.length;
@@ -120,6 +128,16 @@ export class ServicesPage implements OnInit {
     return s.displayType === 'ICON' ? 'Icon' : 'Image';
   }
 
+  addonSummary(service: AdminService): string {
+    const groups = service.addonGroups ?? [];
+    const optionCount = groups.reduce((sum, group) => sum + (group.addons?.length ?? 0), 0);
+    if (!groups.length || !optionCount) {
+      return '';
+    }
+
+    return `${groups.length} add-on group${groups.length === 1 ? '' : 's'} · ${optionCount} option${optionCount === 1 ? '' : 's'}`;
+  }
+
   constructor(
     private readonly adminServiceService: AdminServiceService,
     private readonly authService: AuthService,
@@ -141,7 +159,16 @@ export class ServicesPage implements OnInit {
       colorClass: [''],
       tag: [''],
       isPopular: [false],
+      addonGroups: this.fb.array([]),
     });
+  }
+
+  get addonGroupsForm(): FormArray {
+    return this.form.get('addonGroups') as FormArray;
+  }
+
+  addonItemsForm(groupIndex: number): FormArray {
+    return this.addonGroupsForm.at(groupIndex).get('addons') as FormArray;
   }
 
   ngOnInit(): void {
@@ -188,6 +215,7 @@ export class ServicesPage implements OnInit {
       tag: '',
       isPopular: false,
     });
+    this.resetAddonGroups();
     this.isModalOpen = true;
     this.cdr.markForCheck();
   }
@@ -213,6 +241,7 @@ export class ServicesPage implements OnInit {
       tag: service.tag ?? '',
       isPopular: Boolean(service.isPopular),
     });
+    this.resetAddonGroups(service.addonGroups ?? []);
     this.isModalOpen = true;
     this.cdr.markForCheck();
   }
@@ -329,6 +358,13 @@ export class ServicesPage implements OnInit {
 
     try {
       const raw = this.form.getRawValue() as CreateServicePayload;
+      if (!this.areAddonGroupsValid()) {
+        await this.presentToast('Each add-on group needs a title and at least one option with label and price.');
+        return;
+      }
+
+      const addonGroups = this.buildAddonGroupsPayload();
+
       const payload: CreateServicePayload = {
         title: String(raw.title ?? '').trim(),
         subtitle: String(raw.subtitle ?? '').trim() || undefined,
@@ -348,25 +384,27 @@ export class ServicesPage implements OnInit {
         return;
       }
 
+      let serviceId: string | null = null;
+
       if (!this.isEditMode) {
         const created = (await this.adminServiceService.createService(payload)) as {
           message?: string;
           data?: { id?: string };
         };
-        const createdId = created?.data?.id;
-        if (createdId) {
+        serviceId = created?.data?.id ?? null;
+        if (serviceId) {
           if (this.isValidUploadFile(this.imageFile)) {
-            const img = await this.adminServiceService.uploadServiceImage(createdId, this.imageFile);
+            const img = await this.adminServiceService.uploadServiceImage(serviceId, this.imageFile);
             this.form.patchValue({ imageUrl: img.data.imageUrl });
           }
           if (this.isValidUploadFile(this.iconFile)) {
-            const ic = await this.adminServiceService.uploadServiceIcon(createdId, this.iconFile);
+            const ic = await this.adminServiceService.uploadServiceIcon(serviceId, this.iconFile);
             this.form.patchValue({ iconUrl: ic.data.iconUrl });
           }
         }
       } else {
-        const id = this.selectedService?.id;
-        if (!id) {
+        serviceId = this.selectedService?.id ?? null;
+        if (!serviceId) {
           await this.presentToast('Invalid service selected.');
           return;
         }
@@ -374,16 +412,20 @@ export class ServicesPage implements OnInit {
         const updatePayload: UpdateServicePayload = {
           ...payload,
         };
-        await this.adminServiceService.updateService(id, updatePayload);
+        await this.adminServiceService.updateService(serviceId, updatePayload);
 
         if (this.isValidUploadFile(this.imageFile)) {
-          const img = await this.adminServiceService.uploadServiceImage(id, this.imageFile);
+          const img = await this.adminServiceService.uploadServiceImage(serviceId, this.imageFile);
           this.form.patchValue({ imageUrl: img.data.imageUrl });
         }
         if (this.isValidUploadFile(this.iconFile)) {
-          const ic = await this.adminServiceService.uploadServiceIcon(id, this.iconFile);
+          const ic = await this.adminServiceService.uploadServiceIcon(serviceId, this.iconFile);
           this.form.patchValue({ iconUrl: ic.data.iconUrl });
         }
+      }
+
+      if (serviceId) {
+        await this.adminServiceService.replaceServiceAddons(serviceId, addonGroups);
       }
 
       this.isModalOpen = false;
@@ -464,6 +506,155 @@ export class ServicesPage implements OnInit {
 
   private isValidUploadFile(file: File | null): file is File {
     return file instanceof File && file.size > 0;
+  }
+
+  addAddonGroup(): void {
+    this.addonGroupsForm.push(this.createAddonGroupFormGroup());
+    this.cdr.markForCheck();
+  }
+
+  removeAddonGroup(groupIndex: number): void {
+    this.addonGroupsForm.removeAt(groupIndex);
+    this.cdr.markForCheck();
+  }
+
+  addAddonOption(groupIndex: number): void {
+    this.addonItemsForm(groupIndex).push(this.createAddonFormGroup());
+    this.cdr.markForCheck();
+  }
+
+  removeAddonOption(groupIndex: number, addonIndex: number): void {
+    this.addonItemsForm(groupIndex).removeAt(addonIndex);
+    this.cdr.markForCheck();
+  }
+
+  onAddonRequiredToggle(groupIndex: number): void {
+    const group = this.addonGroupsForm.at(groupIndex) as FormGroup;
+    const isRequired = Boolean(group.get('isRequired')?.value);
+    if (isRequired) {
+      const minSelection = Number(group.get('minSelection')?.value) || 0;
+      if (minSelection < 1) {
+        group.patchValue({ minSelection: 1 });
+      }
+    }
+    this.cdr.markForCheck();
+  }
+
+  onAddonSelectionTypeChange(groupIndex: number): void {
+    const group = this.addonGroupsForm.at(groupIndex) as FormGroup;
+    if (group.get('selectionType')?.value === 'SINGLE') {
+      group.patchValue({ maxSelection: 1, minSelection: Math.min(Number(group.get('minSelection')?.value) || 0, 1) });
+    }
+    this.cdr.markForCheck();
+  }
+
+  private resetAddonGroups(groups: AdminServiceAddonGroup[] = []): void {
+    while (this.addonGroupsForm.length > 0) {
+      this.addonGroupsForm.removeAt(0);
+    }
+
+    if (groups.length === 0) {
+      return;
+    }
+
+    for (const group of groups) {
+      this.addonGroupsForm.push(this.createAddonGroupFormGroup(group));
+    }
+  }
+
+  private createAddonGroupFormGroup(group?: AdminServiceAddonGroup): FormGroup {
+    const addons = group?.addons?.length
+      ? group.addons
+      : [{ label: '', description: '', price: 0 } satisfies AdminServiceAddonItem];
+
+    return this.fb.group({
+      id: [group?.id ?? ''],
+      title: [group?.title ?? '', [Validators.required]],
+      helpText: [group?.helpText ?? ''],
+      selectionType: [group?.selectionType ?? 'MULTI'],
+      minSelection: [group?.minSelection ?? (group?.isRequired ? 1 : 0)],
+      maxSelection: [group?.maxSelection ?? null],
+      isRequired: [group?.isRequired ?? false],
+      addons: this.fb.array(addons.map((addon) => this.createAddonFormGroup(addon))),
+    });
+  }
+
+  private createAddonFormGroup(addon?: AdminServiceAddonItem): FormGroup {
+    return this.fb.group({
+      id: [addon?.id ?? ''],
+      label: [addon?.label ?? '', [Validators.required]],
+      description: [addon?.description ?? ''],
+      price: [addon?.price ?? null, [Validators.required, Validators.min(0)]],
+    });
+  }
+
+  private buildAddonGroupsPayload(): AdminServiceAddonGroup[] {
+    const rawGroups = this.addonGroupsForm.getRawValue() as AdminServiceAddonGroup[];
+
+    return rawGroups
+      .map((group, groupIndex) => {
+        const selectionType: AddonSelectionType = group.selectionType === 'SINGLE' ? 'SINGLE' : 'MULTI';
+        const isRequired = Boolean(group.isRequired);
+        const minSelection = isRequired
+          ? Math.max(Number(group.minSelection) || 0, 1)
+          : Math.max(Number(group.minSelection) || 0, 0);
+        const maxSelection =
+          selectionType === 'SINGLE'
+            ? 1
+            : group.maxSelection == null || group.maxSelection === ('' as unknown as number)
+              ? null
+              : Number(group.maxSelection);
+
+        const addons = (group.addons ?? [])
+          .map((addon, addonIndex) => ({
+            ...(addon.id ? { id: addon.id } : {}),
+            label: String(addon.label ?? '').trim(),
+            description: String(addon.description ?? '').trim() || undefined,
+            price: Number(addon.price),
+            sortOrder: addonIndex,
+          }))
+          .filter((addon) => addon.label && !Number.isNaN(addon.price));
+
+        return {
+          ...(group.id ? { id: group.id } : {}),
+          title: String(group.title ?? '').trim(),
+          helpText: String(group.helpText ?? '').trim() || undefined,
+          selectionType,
+          minSelection,
+          maxSelection,
+          isRequired,
+          sortOrder: groupIndex,
+          addons,
+        };
+      })
+      .filter((group) => group.title);
+  }
+
+  private areAddonGroupsValid(): boolean {
+    if (this.addonGroupsForm.length === 0) {
+      return true;
+    }
+
+    const rawGroups = this.addonGroupsForm.getRawValue() as AdminServiceAddonGroup[];
+
+    for (const group of rawGroups) {
+      if (!String(group.title ?? '').trim()) {
+        return false;
+      }
+
+      if (!group.addons?.length) {
+        return false;
+      }
+
+      for (const addon of group.addons) {
+        const price = Number(addon.price);
+        if (!String(addon.label ?? '').trim() || Number.isNaN(price) || price < 0) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   private normalizeColorClass(value: unknown): string | undefined {
