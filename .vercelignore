@@ -1,0 +1,9 @@
+node_modules/**
+android/**
+.git/**
+.angular/**
+.vercel/**
+dist/**
+www/**
+*.apk
+*.aab
