@@ -1,4 +1,4 @@
-<ion-app>
+<ion-app [class.app-has-bottom-nav]="!isLoginPage">
   <ion-menu menuId="settings-menu" side="end" contentId="main-content" type="overlay" class="app-end-menu">
     <ion-header>
       <ion-toolbar>
@@ -8,68 +8,35 @@
 
     <ion-content class="app-menu-content">
       <ion-list lines="none" class="settings-menu-list app-menu-section">
-        <ion-list-header class="app-menu-list-header">
-          <ion-label>Workspace</ion-label>
-        </ion-list-header>
-        <ion-item button [detail]="true" (click)="navigateTo('/dashboard')">
+        <ion-item button [detail]="false" (click)="navigateTo('/dashboard')">
           <ion-icon slot="start" name="grid-outline" aria-hidden="true"></ion-icon>
-          <ion-label>
-            <h3>Dashboard</h3>
-            <p>Overview &amp; key metrics</p>
-          </ion-label>
+          <ion-label>Dashboard</ion-label>
         </ion-item>
-        <ion-item button [detail]="true" (click)="navigateTo('/requests')">
+        <ion-item button [detail]="false" (click)="navigateTo('/requests')">
           <ion-icon slot="start" name="git-network-outline" aria-hidden="true"></ion-icon>
-          <ion-label>
-            <h3>Requests</h3>
-            <p>Queue, approve, and reject</p>
-          </ion-label>
+          <ion-label>Requests</ion-label>
         </ion-item>
-      </ion-list>
-
-      <ion-list lines="none" class="settings-menu-list app-menu-section">
-        <ion-list-header class="app-menu-list-header">
-          <ion-label>Directory</ion-label>
-        </ion-list-header>
-        <ion-item button [detail]="true" (click)="navigateTo('/users')">
+        <ion-item button [detail]="false" (click)="navigateTo('/users')">
           <ion-icon slot="start" name="people-circle-outline" aria-hidden="true"></ion-icon>
-          <ion-label>
-            <h3>Users</h3>
-            <p>Customer accounts</p>
-          </ion-label>
+          <ion-label>Users</ion-label>
         </ion-item>
-        <ion-item button [detail]="true" (click)="navigateTo('/partners')">
+        <ion-item button [detail]="false" (click)="navigateTo('/partners')">
           <ion-icon slot="start" name="business-outline" aria-hidden="true"></ion-icon>
-          <ion-label>
-            <h3>Partners</h3>
-            <p>Network & lifecycle</p>
-          </ion-label>
+          <ion-label>Partners</ion-label>
         </ion-item>
-        <ion-item button [detail]="true" (click)="navigateTo('/services')">
+        <ion-item button [detail]="false" (click)="navigateTo('/services')">
           <ion-icon slot="start" name="cube-outline" aria-hidden="true"></ion-icon>
-          <ion-label>
-            <h3>Services</h3>
-            <p>Catalog & pricing</p>
-          </ion-label>
+          <ion-label>Services</ion-label>
         </ion-item>
-      </ion-list>
-
-      <ion-list lines="none" class="settings-menu-list app-menu-section">
-        <ion-list-header class="app-menu-list-header">
-          <ion-label>Administration</ion-label>
-        </ion-list-header>
-        <ion-item button [detail]="true" (click)="navigateTo('/settings')">
+        <ion-item button [detail]="false" (click)="navigateTo('/settings')">
           <ion-icon slot="start" name="settings-outline" aria-hidden="true"></ion-icon>
-          <ion-label>
-            <h3>App settings</h3>
-            <p>Preferences</p>
-          </ion-label>
+          <ion-label>Settings</ion-label>
         </ion-item>
       </ion-list>
 
       <ion-list lines="none" class="app-menu-section app-menu-logout">
-        <ion-item button [detail]="false" color="danger" (click)="logout()">
-          <ion-icon slot="start" name="log-out-outline" aria-hidden="true"></ion-icon>
+        <ion-item button [detail]="false" (click)="logout()">
+          <ion-icon slot="start" name="log-out-outline" color="danger" aria-hidden="true"></ion-icon>
           <ion-label color="danger">Sign out</ion-label>
         </ion-item>
       </ion-list>

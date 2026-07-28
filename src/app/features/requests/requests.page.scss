@@ -13,12 +13,13 @@
   --background: transparent;
   --inner-padding-end: 0;
   --inner-padding-start: 0;
-  --min-height: 48px;
+  --min-height: 44px;
   --padding-start: max(0.5rem, env(safe-area-inset-left));
   --padding-end: max(0.5rem, env(safe-area-inset-right));
   width: 100%;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--ion-color-medium) 6%, transparent);
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--app-border, #e4e7ec);
 }
 
 .request-filter-funnel {
@@ -35,26 +36,26 @@
 }
 
 .requests-content {
-  --background: color-mix(in srgb, var(--ion-color-medium) 4%, var(--ion-background-color));
-  --padding-start: max(0.75rem, env(safe-area-inset-left));
-  --padding-end: max(0.75rem, env(safe-area-inset-right));
-  --padding-top: 0.5rem;
+  --background: var(--ion-background-color);
+  --padding-start: max(1rem, env(safe-area-inset-left));
+  --padding-end: max(1rem, env(safe-area-inset-right));
+  --padding-top: 0.75rem;
 }
 
 .requests-cards-panel {
-  max-width: 560px;
+  max-width: 640px;
   margin-inline: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .request-card {
   margin: 0;
-  border-radius: 16px;
-  box-shadow: 0 2px 14px color-mix(in srgb, var(--ion-color-dark) 6%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 14%, transparent);
-  background: var(--ion-item-background, var(--ion-background-color));
+  border-radius: 10px;
+  box-shadow: none;
+  border: 1px solid var(--app-border, #e4e7ec);
+  background: #ffffff;
 }
 
 .request-card-actions {
@@ -173,7 +174,7 @@
 .pagination {
   display: block;
   padding-top: 0.5rem;
-  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  padding-bottom: 0.5rem;
 }
 
 .pagination-bar {
@@ -182,11 +183,11 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 14px;
-  background: var(--ion-item-background, var(--ion-background-color));
-  border: 1px solid color-mix(in srgb, var(--ion-color-medium) 20%, transparent);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--ion-color-dark) 8%, transparent);
-  max-width: 560px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--app-border, #e4e7ec);
+  box-shadow: none;
+  max-width: 640px;
   margin-inline: auto;
 }
 
@@ -229,13 +230,3 @@
   font-size: 1.25rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  .request-card {
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
-  }
-
-  .pagination-bar {
-    border-color: color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-  }
-}

@@ -26,35 +26,17 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="partners-canvas" aria-hidden="true">
-    <div class="partners-canvas-glow partners-canvas-glow--1"></div>
-    <div class="partners-canvas-glow partners-canvas-glow--2"></div>
-    <div class="partners-canvas-mesh"></div>
-  </div>
-
   <div class="partners-inner">
-    <article class="partners-hero">
-      <div class="partners-hero-inner">
-        <div class="partners-hero-top">
-          <span class="partners-hero-badge">Network</span>
-          <span class="partners-hero-version">Live API</span>
-        </div>
-        <h2 class="partners-hero-title">Partners</h2>
-        <p class="partners-hero-lead">{{ lead }}</p>
-      </div>
-    </article>
+    <header class="app-page-intro">
+      <h2>Partners</h2>
+      <p>{{ lead }}</p>
+    </header>
 
-    <div class="partners-metrics" role="group" aria-label="Partner summary">
-      <div
-        *ngFor="let s of stats"
-        class="partners-metric"
-        [class.partners-metric--a]="s.tone === 'a'"
-        [class.partners-metric--b]="s.tone === 'b'"
-        [class.partners-metric--c]="s.tone === 'c'"
-      >
-        <span class="partners-metric-value">{{ s.value }}</span>
-        <span class="partners-metric-label">{{ s.label }}</span>
-        <span class="partners-metric-hint">{{ s.hint }}</span>
+    <div class="app-metric-row" role="group" aria-label="Partner summary">
+      <div *ngFor="let s of stats" class="app-metric">
+        <span class="app-metric-value">{{ s.value }}</span>
+        <span class="app-metric-label">{{ s.label }}</span>
+        <span class="app-metric-hint">{{ s.hint }}</span>
       </div>
     </div>
 

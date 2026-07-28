@@ -4,29 +4,33 @@ import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
 import { environment } from '../../environments/environment';
 
+export type GoogleCredentialHandler = (idToken: string) => void;
+
 @Injectable({
   providedIn: 'root',
 })
 export class GoogleSignInService {
-  private static readonly WEB_SIGN_IN_TIMEOUT_MS = 30_000;
+  private static readonly SCRIPT_TIMEOUT_MS = 30_000;
 
   private nativeInitialized = false;
   private webInitialized = false;
   private gisScriptPromise?: Promise<void>;
-  private webTokenResolver?: (token: string) => void;
-  private webTokenRejecter?: (reason?: unknown) => void;
-  private webSignInTimeout?: ReturnType<typeof setTimeout>;
+  private credentialHandler?: GoogleCredentialHandler;
 
-  async signIn(): Promise<string> {
-    const platform = Capacitor.getPlatform();
-
-    return platform === 'web' ? this.signInWeb() : this.signInNative();
+  isNativePlatform(): boolean {
+    return Capacitor.getPlatform() !== 'web';
   }
 
-  private async signInNative(): Promise<string> {
+  /**
+   * Native (Capacitor) Google Sign-In — returns an ID token.
+   */
+  async signInNative(): Promise<string> {
     if (!this.nativeInitialized) {
-      await GoogleAuth.initialize();
-
+      await GoogleAuth.initialize({
+        clientId: environment.googleWebClientId,
+        scopes: ['email', 'profile', 'openid'],
+        grantOfflineAccess: false,
+      });
       this.nativeInitialized = true;
     }
 
@@ -40,31 +44,41 @@ export class GoogleSignInService {
     return idToken;
   }
 
-  private async signInWeb(): Promise<string> {
-    return this.signInWebWithPrompt();
-  }
-
-  private async signInWebWithPrompt(): Promise<string> {
+  /**
+   * Web: mount the official GIS "Sign in with Google" button (FedCM-ready).
+   * One Tap prompt() is intentionally not used — it often skips on button-driven login.
+   */
+  async mountWebButton(
+    container: HTMLElement,
+    onCredential: GoogleCredentialHandler,
+  ): Promise<void> {
+    this.credentialHandler = onCredential;
     await this.ensureWebInitialized();
 
-    this.rejectPendingWebSignIn(new Error('Google sign-in was interrupted.'));
-    window.google.accounts.id.cancel?.();
-
-    return new Promise<string>((resolve, reject) => {
-      this.webTokenResolver = resolve;
-      this.webTokenRejecter = reject;
-      this.webSignInTimeout = setTimeout(() => {
-        this.rejectPendingWebSignIn(new Error('Google sign-in timed out. Please try again.'));
-      }, GoogleSignInService.WEB_SIGN_IN_TIMEOUT_MS);
-
-      window.google.accounts.id.prompt((notification) => {
-        void notification;
-      });
+    container.replaceChildren();
+    window.google.accounts.id.renderButton(container, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+      text: 'continue_with',
+      shape: 'rectangular',
+      logo_alignment: 'left',
+      width: Math.min(container.clientWidth || 320, 400),
     });
   }
 
   private async ensureWebInitialized(): Promise<void> {
     if (this.webInitialized) {
+      // Re-bind callback in case the page remounts.
+      window.google.accounts.id.initialize({
+        client_id: environment.googleWebClientId,
+        callback: (response) => this.handleCredentialResponse(response),
+        use_fedcm_for_button: true,
+        use_fedcm_for_prompt: true,
+        auto_select: false,
+        cancel_on_tap_outside: true,
+        context: 'signin',
+      });
       return;
     }
 
@@ -78,18 +92,24 @@ export class GoogleSignInService {
 
     window.google.accounts.id.initialize({
       client_id: environment.googleWebClientId,
+      callback: (response) => this.handleCredentialResponse(response),
+      use_fedcm_for_button: true,
       use_fedcm_for_prompt: true,
-      callback: (response: GoogleCredentialResponse) => {
-        if (!response.credential) {
-          this.rejectPendingWebSignIn(new Error('Missing Google credential.'));
-          return;
-        }
-
-        this.resolvePendingWebSignIn(response.credential);
-      },
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      context: 'signin',
     });
 
     this.webInitialized = true;
+  }
+
+  private handleCredentialResponse(response: GoogleCredentialResponse): void {
+    if (!response.credential) {
+      console.error('[GoogleSignIn] Missing credential in GIS response.');
+      return;
+    }
+
+    this.credentialHandler?.(response.credential);
   }
 
   private loadGoogleIdentityScript(): Promise<void> {
@@ -114,7 +134,6 @@ export class GoogleSignInService {
             once: true,
           });
 
-          // If the script already loaded before listeners were attached, resolve once GIS appears.
           const pollStart = Date.now();
           const interval = window.setInterval(() => {
             if (window.google?.accounts?.id) {
@@ -123,7 +142,7 @@ export class GoogleSignInService {
               return;
             }
 
-            if (Date.now() - pollStart > GoogleSignInService.WEB_SIGN_IN_TIMEOUT_MS) {
+            if (Date.now() - pollStart > GoogleSignInService.SCRIPT_TIMEOUT_MS) {
               window.clearInterval(interval);
               reject(new Error('Google Identity Services did not initialize.'));
             }
@@ -138,43 +157,10 @@ export class GoogleSignInService {
         script.dataset['googleIdentity'] = 'true';
         script.onload = () => resolve();
         script.onerror = () => reject(new Error('Failed to load GIS.'));
-
         document.head.appendChild(script);
       });
     }
 
     return this.gisScriptPromise;
-  }
-
-  private resetWebPromiseHandlers(): void {
-    if (this.webSignInTimeout) {
-      clearTimeout(this.webSignInTimeout);
-      this.webSignInTimeout = undefined;
-    }
-
-    this.webTokenResolver = undefined;
-    this.webTokenRejecter = undefined;
-  }
-
-  private resolvePendingWebSignIn(token: string): void {
-    this.webTokenResolver?.(token);
-    this.resetWebPromiseHandlers();
-  }
-
-  private rejectPendingWebSignIn(error: Error): void {
-    this.webTokenRejecter?.(error);
-    this.resetWebPromiseHandlers();
-  }
-
-  private getErrorMessage(error: unknown): string {
-    if (error instanceof Error) {
-      return error.message;
-    }
-
-    if (typeof error === 'string') {
-      return error;
-    }
-
-    return JSON.stringify(error);
   }
 }

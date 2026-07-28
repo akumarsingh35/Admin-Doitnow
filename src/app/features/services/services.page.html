@@ -23,41 +23,24 @@
 </ion-header>
 
 <ion-content class="services-content" [fullscreen]="true">
-  <div class="services-canvas" aria-hidden="true">
-    <div class="services-canvas-glow services-canvas-glow--1"></div>
-    <div class="services-canvas-glow services-canvas-glow--2"></div>
-    <div class="services-canvas-mesh"></div>
-  </div>
-
   <div class="services-inner">
-    <article class="services-hero">
-      <div class="services-hero-inner">
-        <div class="services-hero-top">
-          <span class="services-hero-badge">Catalog</span>
-          <span class="services-hero-version">Workspace</span>
-        </div>
-        <h2 class="services-hero-title">Service catalog</h2>
-        <p class="services-hero-lead">
-          Manage what customers see: titles, pricing, cover imagery, and featured placement across your app.
-        </p>
-      </div>
-    </article>
+    <header class="app-page-intro">
+      <h2>Services</h2>
+      <p>Manage titles, pricing, media, and featured placement.</p>
+    </header>
 
-    <div class="services-metrics" role="group" aria-label="Catalog summary">
-      <div class="services-metric services-metric--a">
-        <span class="services-metric-value">{{ loading ? '—' : catalogTotal }}</span>
-        <span class="services-metric-label">Total</span>
-        <span class="services-metric-hint">In catalog</span>
+    <div class="app-metric-row" role="group" aria-label="Catalog summary">
+      <div class="app-metric">
+        <span class="app-metric-value">{{ loading ? '—' : catalogTotal }}</span>
+        <span class="app-metric-label">Total</span>
       </div>
-      <div class="services-metric services-metric--b">
-        <span class="services-metric-value">{{ loading ? '—' : catalogPopular }}</span>
-        <span class="services-metric-label">Popular</span>
-        <span class="services-metric-hint">Featured</span>
+      <div class="app-metric">
+        <span class="app-metric-value">{{ loading ? '—' : catalogPopular }}</span>
+        <span class="app-metric-label">Popular</span>
       </div>
-      <div class="services-metric services-metric--c">
-        <span class="services-metric-value">{{ loading ? '—' : catalogWithMedia }}</span>
-        <span class="services-metric-label">With media</span>
-        <span class="services-metric-hint">Image or icon</span>
+      <div class="app-metric">
+        <span class="app-metric-value">{{ loading ? '—' : catalogWithMedia }}</span>
+        <span class="app-metric-label">With media</span>
       </div>
     </div>
 
@@ -239,7 +222,7 @@
 
         <form class="services-modal-form" [formGroup]="form" (ngSubmit)="submit()">
           <div class="services-modal-intro">
-            <div class="services-modal-intro-glass">
+            <div class="services-modal-intro">
               <span class="services-modal-intro-kicker">{{ isEditMode ? 'Update catalog entry' : 'New catalog entry' }}</span>
               <p class="services-modal-intro-text">
                 {{ isEditMode ? 'Adjust copy, pricing, and media shown to customers.' : 'Set the basics, price, and visuals for this offering.' }}

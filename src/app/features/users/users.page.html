@@ -12,53 +12,26 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="users-canvas" aria-hidden="true">
-    <div class="users-canvas-glow users-canvas-glow--1"></div>
-    <div class="users-canvas-glow users-canvas-glow--2"></div>
-    <div class="users-canvas-mesh"></div>
-  </div>
-
   <div class="users-inner">
-    <article class="users-hero">
-      <div class="users-hero-inner">
-        <div class="users-hero-top">
-          <span class="users-hero-badge">Directory</span>
-          <span class="users-hero-version">Live data</span>
-        </div>
-        <h2 class="users-hero-title">Users &amp; customers</h2>
-        <p class="users-hero-lead">{{ lead }}</p>
-      </div>
-    </article>
+    <header class="app-page-intro">
+      <h2>Users</h2>
+      <p>{{ lead }}</p>
+    </header>
 
-    <div class="users-metrics" role="group" aria-label="User and booking summary">
-      <div class="users-metric users-metric--a">
-        <span class="users-metric-value">{{ loading ? '—' : uniqueCustomerCount }}</span>
-        <span class="users-metric-label">Unique customers</span>
-        <span class="users-metric-hint">In sample ({{ sampleLimit }} bookings max)</span>
+    <div class="app-metric-row" role="group" aria-label="User and booking summary">
+      <div class="app-metric">
+        <span class="app-metric-value">{{ loading ? '—' : uniqueCustomerCount }}</span>
+        <span class="app-metric-label">Customers</span>
       </div>
-      <div class="users-metric users-metric--b">
-        <span class="users-metric-value">{{ loading ? '—' : totalBookings }}</span>
-        <span class="users-metric-label">Total bookings</span>
-        <span class="users-metric-hint">Across all pages</span>
+      <div class="app-metric">
+        <span class="app-metric-value">{{ loading ? '—' : totalBookings }}</span>
+        <span class="app-metric-label">Bookings</span>
       </div>
-      <div class="users-metric users-metric--c">
-        <span class="users-metric-value">{{ loading ? '—' : sampleBookingCount }}</span>
-        <span class="users-metric-label">In sample</span>
-        <span class="users-metric-hint">Rows loaded</span>
+      <div class="app-metric">
+        <span class="app-metric-value">{{ loading ? '—' : sampleBookingCount }}</span>
+        <span class="app-metric-label">In sample</span>
       </div>
     </div>
-
-    <section *ngIf="adminSession" class="users-session" aria-labelledby="session-heading">
-      <h3 id="session-heading" class="users-session-title">Signed in</h3>
-      <div class="users-session-card">
-        <div class="users-session-avatar" aria-hidden="true">{{ adminSession.initials }}</div>
-        <div class="users-session-body">
-          <div class="users-session-name">{{ adminSession.displayName }}</div>
-          <div class="users-session-email">{{ adminSession.email }}</div>
-        </div>
-        <ion-icon name="checkmark-circle" class="users-session-check" aria-hidden="true"></ion-icon>
-      </div>
-    </section>
 
     <section class="users-directory" aria-labelledby="directory-heading">
       <header class="users-directory-head">

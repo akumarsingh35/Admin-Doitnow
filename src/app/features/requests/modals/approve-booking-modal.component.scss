@@ -82,12 +82,12 @@
 }
 
 /* Summary glass card */
-.approve-glass-card {
+.approve-summary-card, .approve-glass-card {
   padding: 1.1rem 1.15rem;
   border-radius: 18px;
   background: color-mix(in srgb, var(--ion-card-background, #fff) 88%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid color-mix(in srgb, var(--ion-color-medium) 18%, transparent);
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 45%, transparent) inset,
@@ -506,24 +506,7 @@
   --box-shadow: 0 8px 24px color-mix(in srgb, var(--ion-color-primary) 38%, transparent);
 }
 
-@media (prefers-color-scheme: dark) {
-  .approve-glass-card {
-    background: color-mix(in srgb, var(--ion-card-background) 78%, transparent);
-    box-shadow:
-      0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
-      0 18px 48px -28px rgba(0, 0, 0, 0.55);
-  }
 
-  .approve-partner-card {
-    --background: color-mix(in srgb, var(--ion-card-background) 88%, transparent);
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-  }
-
-  .approve-confirm-panel {
-    background: color-mix(in srgb, var(--ion-card-background) 88%, transparent);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .approve-partner-card {
@@ -533,4 +516,41 @@
   .approve-partner-card:active {
     transform: none;
   }
+}
+
+
+/* --- Admin clarity overrides (light, flat) --- */
+[class*="-canvas"],
+[class*="-canvas-glow"],
+[class*="-canvas-mesh"] {
+  display: none !important;
+}
+
+[class*="-hero-inner"],
+[class*="-glass"],
+.services-modal-intro-glass,
+.approve-summary-card, .approve-glass-card,
+.cancel-glass-card {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 1px solid var(--app-border, #e4e7ec) !important;
+  border-radius: 10px !important;
+}
+
+[class*="-metric"],
+[class*="-card"]:not(ion-card) {
+  box-shadow: none !important;
+}
+
+ion-card,
+[class*="-list"],
+[class*="-panel"],
+[class*="-directory"] ion-list,
+.partners-card,
+.services-card,
+.users-card {
+  box-shadow: none !important;
+  border-color: var(--app-border, #e4e7ec) !important;
 }

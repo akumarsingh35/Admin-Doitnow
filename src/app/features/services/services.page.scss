@@ -106,6 +106,7 @@
   --background: var(--ion-background-color);
   --padding-start: max(1rem, env(safe-area-inset-left));
   --padding-end: max(1rem, env(safe-area-inset-right));
+  --padding-top: 1rem;
   position: relative;
 }
 
@@ -167,8 +168,8 @@
   padding: 1.25rem 1.35rem 1.35rem;
   border-radius: 20px;
   background: color-mix(in srgb, var(--ion-card-background, #fff) 72%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid color-mix(in srgb, var(--ion-color-light) 65%, transparent);
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 55%, transparent) inset,
@@ -368,8 +369,8 @@
   border-radius: 20px;
   border: 1px dashed color-mix(in srgb, var(--ion-color-medium) 28%, transparent);
   background: color-mix(in srgb, var(--ion-card-background, #fff) 55%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .services-loading p {
@@ -387,8 +388,8 @@
   border-radius: 20px;
   border: 1px solid color-mix(in srgb, var(--ion-color-medium) 16%, transparent);
   background: color-mix(in srgb, var(--ion-card-background, #fff) 88%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 40%, transparent) inset,
     0 12px 36px -20px color-mix(in srgb, var(--ion-color-dark) 22%, transparent);
@@ -456,8 +457,8 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--ion-color-medium) 14%, transparent);
   background: color-mix(in srgb, var(--ion-card-background, #fff) 92%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 40%, transparent) inset,
     0 14px 40px -22px color-mix(in srgb, var(--ion-color-dark) 28%, transparent);
@@ -535,7 +536,7 @@
   color: var(--ion-color-medium-shade, var(--ion-color-medium));
   background: color-mix(in srgb, var(--ion-card-background, #fff) 72%, transparent);
   border: 1px solid color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
-  backdrop-filter: blur(8px);
+  backdrop-filter: none;
 }
 
 .services-card-chip--popular {
@@ -777,12 +778,12 @@
   margin-bottom: 1.25rem;
 }
 
-.services-modal-intro-glass {
+.services-modal-intro, .services-modal-intro-glass {
   padding: 1rem 1.1rem 1.1rem;
   border-radius: 18px;
   background: color-mix(in srgb, var(--ion-card-background, #fff) 88%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid color-mix(in srgb, var(--ion-color-medium) 18%, transparent);
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 45%, transparent) inset,
@@ -831,8 +832,8 @@
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--ion-color-medium) 16%, transparent);
   background: color-mix(in srgb, var(--ion-card-background, #fff) 92%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow:
     0 1px 0 color-mix(in srgb, #fff 40%, transparent) inset,
     0 10px 32px -20px color-mix(in srgb, var(--ion-color-dark) 22%, transparent);
@@ -1082,25 +1083,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .services-modal-intro-glass,
-  .services-modal-panel,
-  .services-modal-media-card {
-    background: color-mix(in srgb, var(--ion-card-background) 78%, transparent);
-    box-shadow:
-      0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
-      0 18px 48px -28px rgba(0, 0, 0, 0.55);
-  }
 
-  .services-modal-toolbar {
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
-  }
-
-  .services-file-trigger {
-    background: color-mix(in srgb, var(--ion-color-primary) 14%, transparent);
-    border-color: color-mix(in srgb, var(--ion-color-primary) 28%, transparent);
-  }
-}
 
 @media (max-width: 400px) {
   .services-metrics {
@@ -1132,35 +1115,7 @@
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .services-hero-inner {
-    background: color-mix(in srgb, var(--ion-card-background) 65%, transparent);
-    border-color: color-mix(in srgb, var(--ion-color-medium) 22%, transparent);
-    box-shadow:
-      0 1px 0 color-mix(in srgb, #fff 6%, transparent) inset,
-      0 24px 60px -32px rgba(0, 0, 0, 0.55);
-  }
 
-  .services-metric {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  }
-
-  .services-empty,
-  .services-card {
-    background: color-mix(in srgb, var(--ion-card-background) 78%, transparent);
-    box-shadow:
-      0 1px 0 color-mix(in srgb, #fff 5%, transparent) inset,
-      0 16px 48px -24px rgba(0, 0, 0, 0.55);
-  }
-
-  .services-loading {
-    background: color-mix(in srgb, var(--ion-card-background) 65%, transparent);
-  }
-
-  .services-canvas-mesh {
-    opacity: 0.4;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .services-card {
@@ -1170,4 +1125,41 @@
   .services-card:active {
     transform: none;
   }
+}
+
+
+/* --- Admin clarity overrides (light, flat) --- */
+[class*="-canvas"],
+[class*="-canvas-glow"],
+[class*="-canvas-mesh"] {
+  display: none !important;
+}
+
+[class*="-hero-inner"],
+[class*="-glass"],
+.services-modal-intro, .services-modal-intro-glass,
+.approve-glass-card,
+.cancel-glass-card {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 1px solid var(--app-border, #e4e7ec) !important;
+  border-radius: 10px !important;
+}
+
+[class*="-metric"],
+[class*="-card"]:not(ion-card) {
+  box-shadow: none !important;
+}
+
+ion-card,
+[class*="-list"],
+[class*="-panel"],
+[class*="-directory"] ion-list,
+.partners-card,
+.services-card,
+.users-card {
+  box-shadow: none !important;
+  border-color: var(--app-border, #e4e7ec) !important;
 }

@@ -83,3 +83,40 @@ ion-textarea {
   min-height: 80px;
   padding: 0.5rem 0;
 }
+
+
+/* --- Admin clarity overrides (light, flat) --- */
+[class*="-canvas"],
+[class*="-canvas-glow"],
+[class*="-canvas-mesh"] {
+  display: none !important;
+}
+
+[class*="-hero-inner"],
+[class*="-glass"],
+.services-modal-intro-glass,
+.approve-glass-card,
+.cancel-glass-card {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: 1px solid var(--app-border, #e4e7ec) !important;
+  border-radius: 10px !important;
+}
+
+[class*="-metric"],
+[class*="-card"]:not(ion-card) {
+  box-shadow: none !important;
+}
+
+ion-card,
+[class*="-list"],
+[class*="-panel"],
+[class*="-directory"] ion-list,
+.partners-card,
+.services-card,
+.users-card {
+  box-shadow: none !important;
+  border-color: var(--app-border, #e4e7ec) !important;
+}

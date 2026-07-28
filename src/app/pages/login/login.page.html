@@ -1,10 +1,4 @@
 <ion-content [fullscreen]="true" class="login-content">
-  <div class="login-backdrop" role="presentation">
-    <div class="login-bg-mesh" aria-hidden="true"></div>
-    <div class="login-bg-glow login-bg-glow--a" aria-hidden="true"></div>
-    <div class="login-bg-glow login-bg-glow--b" aria-hidden="true"></div>
-  </div>
-
   <main class="login-shell">
     <section class="login-card" aria-labelledby="login-title">
       <header class="login-brand">
@@ -13,20 +7,37 @@
         </div>
         <h1 id="login-title" class="login-title">Admin Panel</h1>
         <p class="login-subtitle">
-          Sign in with your Google account to access the dashboard.
+          Sign in with Google to manage requests, partners, and services.
         </p>
       </header>
 
       <div class="login-actions">
+        <!-- Web: official GIS button (FedCM). More reliable than One Tap prompt(). -->
+        <ng-container *ngIf="!isNative">
+          <div
+            #googleButtonHost
+            class="google-button-host"
+            [class.google-button-host--busy]="loading"
+            [attr.aria-busy]="loading"
+          ></div>
+          <div *ngIf="!buttonReady && !buttonError" class="login-button-status">
+            <ion-spinner name="crescent"></ion-spinner>
+            <span>Loading Google sign-in…</span>
+          </div>
+          <p *ngIf="buttonError" class="login-button-error" role="alert">{{ buttonError }}</p>
+          <p *ngIf="loading" class="login-button-status">Signing in…</p>
+        </ng-container>
+
+        <!-- Native Capacitor -->
         <ion-button
+          *ngIf="isNative"
           class="google-signin-btn"
           fill="solid"
           expand="block"
           size="large"
-          shape="round"
           type="button"
           [disabled]="loading"
-          (click)="continueWithGoogle()"
+          (click)="continueWithGoogleNative()"
         >
           <ion-spinner *ngIf="loading" slot="start" name="crescent"></ion-spinner>
           <ion-icon *ngIf="!loading" name="logo-google" slot="start" aria-hidden="true"></ion-icon>
@@ -40,7 +51,7 @@
       </div>
 
       <footer class="login-footer">
-        <p class="login-hint">Authorized administrators only.</p>
+        <p class="login-hint">Authorized administrators only</p>
       </footer>
     </section>
   </main>

@@ -1,17 +1,16 @@
-// App-wide surfaces — loaded after Ionic core (see angular.json).
-// Tweak --app-bg-* below to rebrand the shell.
+// Admin surfaces — light-only for clarity (loaded after Ionic core).
 
-// Use same specificity as Ionic (:root.ios / :root.md) so these win over defaults.
 :root.ios,
 :root.md {
-  // Light: soft cool gray (less harsh than pure white)
-  --app-bg-page: #e9edf4;
-  --app-bg-elevated: #f2f5fa;
+  --app-bg-page: #f5f6f8;
+  --app-bg-elevated: #ffffff;
+  --app-border: #e4e7ec;
+  --app-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 
   --ion-background-color: var(--app-bg-page);
-  --ion-background-color-rgb: 233, 237, 244;
-  --ion-text-color: #16181d;
-  --ion-text-color-rgb: 22, 24, 29;
+  --ion-background-color-rgb: 245, 246, 248;
+  --ion-text-color: #101828;
+  --ion-text-color-rgb: 16, 24, 40;
 
   --ion-toolbar-background: var(--app-bg-elevated);
   --ion-item-background: var(--app-bg-elevated);
@@ -19,27 +18,9 @@
   --ion-tab-bar-background: var(--app-bg-elevated);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root.ios,
-  :root.md {
-    // Dark: deep neutral (readable with existing primary / step tokens from dark.system)
-    --app-bg-page: #0c0e12;
-    --app-bg-elevated: #14161c;
-
-    --ion-background-color: var(--app-bg-page);
-    --ion-background-color-rgb: 12, 14, 18;
-    --ion-text-color: #eceef2;
-    --ion-text-color-rgb: 236, 238, 242;
-
-    --ion-toolbar-background: var(--app-bg-elevated);
-    --ion-item-background: var(--app-bg-elevated);
-    --ion-card-background: #16181f;
-    --ion-tab-bar-background: var(--app-bg-elevated);
-  }
-}
-
 html,
 body,
 ion-app {
   background: var(--ion-background-color);
+  color-scheme: light;
 }

@@ -12,30 +12,18 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div class="dashboard-canvas" aria-hidden="true">
-    <div class="dashboard-canvas-glow dashboard-canvas-glow--1"></div>
-    <div class="dashboard-canvas-glow dashboard-canvas-glow--2"></div>
-    <div class="dashboard-canvas-mesh"></div>
-  </div>
-
   <div class="dashboard-inner">
-    <article class="dashboard-hero">
-      <div class="dashboard-hero-inner">
-        <div class="dashboard-hero-top">
-          <span class="dashboard-hero-badge">Workspace</span>
-          <span class="dashboard-hero-version">Overview</span>
-        </div>
-        <h2 class="dashboard-hero-title">Hello<span *ngIf="adminSession as s">, {{ s.displayName.split(' ')[0] }}</span></h2>
-        <p class="dashboard-hero-lead">{{ lead }}</p>
-        <div *ngIf="adminSession as session" class="dashboard-session-pill" aria-label="Signed in admin">
-          <span class="dashboard-session-avatar">{{ session.initials }}</span>
-          <span class="dashboard-session-text">
-            <span class="dashboard-session-name">{{ session.displayName }}</span>
-            <span class="dashboard-session-email">{{ session.email }}</span>
-          </span>
-        </div>
+    <header class="app-page-intro">
+      <h2>Hello<span *ngIf="adminSession as s">, {{ s.displayName.split(' ')[0] }}</span></h2>
+      <p>{{ lead }}</p>
+      <div *ngIf="adminSession as session" class="dashboard-session" aria-label="Signed in admin">
+        <span class="dashboard-session-avatar">{{ session.initials }}</span>
+        <span class="dashboard-session-text">
+          <span class="dashboard-session-name">{{ session.displayName }}</span>
+          <span class="dashboard-session-email">{{ session.email }}</span>
+        </span>
       </div>
-    </article>
+    </header>
 
     <nav class="dashboard-quick-nav" aria-label="Jump to an area">
       <a
@@ -45,7 +33,6 @@
       >
         <ion-icon [name]="item.icon" class="dashboard-quick-icon" aria-hidden="true"></ion-icon>
         <span class="dashboard-quick-label">{{ item.label }}</span>
-        <span class="dashboard-quick-hint">{{ item.hint }}</span>
       </a>
     </nav>
 
@@ -58,32 +45,31 @@
 
     <ng-container *ngIf="!loading">
       <section class="dashboard-section" aria-label="Request pipeline">
-        <h2 class="dashboard-section-title">Request pipeline</h2>
-        <p class="dashboard-section-hint">Counts from your booking API (all pages).</p>
+        <h2 class="dashboard-section-title">Requests</h2>
         <ion-grid class="summary-grid" fixed>
           <ion-row>
             <ion-col size="6" sizeMd="3">
-              <div class="stat-card stat-card--total">
-                <span class="stat-label">All requests</span>
+              <div class="stat-card">
+                <span class="stat-label">All</span>
                 <span class="stat-value">{{ totalBookings | number }}</span>
               </div>
             </ion-col>
             <ion-col size="6" sizeMd="3">
-              <div class="stat-card stat-card--pending">
+              <div class="stat-card">
                 <span class="stat-label">Pending</span>
-                <span class="stat-value">{{ pendingBookings | number }}</span>
+                <span class="stat-value stat-value--pending">{{ pendingBookings | number }}</span>
               </div>
             </ion-col>
             <ion-col size="6" sizeMd="3">
-              <div class="stat-card stat-card--approved">
+              <div class="stat-card">
                 <span class="stat-label">Confirmed</span>
-                <span class="stat-value">{{ confirmedBookings | number }}</span>
+                <span class="stat-value stat-value--primary">{{ confirmedBookings | number }}</span>
               </div>
             </ion-col>
             <ion-col size="6" sizeMd="3">
-              <div class="stat-card stat-card--completed">
+              <div class="stat-card">
                 <span class="stat-label">Completed</span>
-                <span class="stat-value">{{ completedBookings | number }}</span>
+                <span class="stat-value stat-value--success">{{ completedBookings | number }}</span>
               </div>
             </ion-col>
           </ion-row>
@@ -91,21 +77,15 @@
       </section>
 
       <section class="dashboard-section" aria-label="Directory snapshot" *ngIf="directoryStrip.length">
-        <h2 class="dashboard-section-title">Directory snapshot</h2>
-        <p class="dashboard-section-hint">Aligned with Services, Partners, and Users.</p>
-        <div class="dashboard-strip" role="group">
+        <h2 class="dashboard-section-title">Directory</h2>
+        <div class="app-metric-row" role="group">
           <a
             *ngFor="let d of directoryStrip"
             [routerLink]="d.path"
-            class="dashboard-strip-tile"
-            [class.dashboard-strip-tile--a]="d.tone === 'a'"
-            [class.dashboard-strip-tile--b]="d.tone === 'b'"
-            [class.dashboard-strip-tile--c]="d.tone === 'c'"
+            class="app-metric dashboard-dir-link"
           >
-            <ion-icon [name]="d.icon" class="dashboard-strip-icon" aria-hidden="true"></ion-icon>
-            <span class="dashboard-strip-value">{{ d.value }}</span>
-            <span class="dashboard-strip-label">{{ d.label }}</span>
-            <span class="dashboard-strip-hint">{{ d.hint }}</span>
+            <span class="app-metric-value">{{ d.value }}</span>
+            <span class="app-metric-label">{{ d.label }}</span>
           </a>
         </div>
       </section>
@@ -115,64 +95,40 @@
         *ngIf="serviceActivity.length"
         aria-labelledby="activity-by-service"
       >
-        <h2 id="activity-by-service" class="dashboard-section-title">By service (sample)</h2>
-        <p class="dashboard-section-hint">
-          Top services in the latest up to {{ sampleLimit }} requests — use
-          <a routerLink="/requests">Requests</a> for the full list.
-        </p>
-        <ion-list class="activity-list" lines="full" inset>
+        <h2 id="activity-by-service" class="dashboard-section-title">By service</h2>
+        <ion-list class="activity-list" lines="full">
           <ion-item *ngFor="let row of serviceActivity" class="activity-item">
             <ion-label>
               <h3 class="activity-name">{{ row.label }}</h3>
             </ion-label>
-            <ion-note slot="end" class="activity-count">{{ row.count }} in sample</ion-note>
+            <ion-note slot="end" class="activity-count">{{ row.count }}</ion-note>
           </ion-item>
         </ion-list>
       </section>
 
       <section class="dashboard-section" aria-labelledby="recent-heading">
-        <h2 id="recent-heading" class="dashboard-section-title">Recent in sample</h2>
-        <p class="dashboard-section-hint">Open a row for the same request detail as the list view.</p>
-        <ion-card *ngIf="recentBookings.length; else noRecent" class="recent-card">
-          <ion-list class="recent-list" lines="none">
-            <ion-item
-              *ngFor="let req of recentBookings; trackBy: trackByBookingId"
-              class="recent-item"
-              button
-              detail="true"
-              lines="full"
-              (click)="goToDetail(req, $event)"
-            >
-              <ion-label class="recent-label">
-                <span class="recent-id">#{{ req.id }}</span>
-                <span class="recent-service">{{ serviceLine(req) }}</span>
-                <span class="recent-meta">{{ requestSchedule(req) }}</span>
-              </ion-label>
-              <div class="recent-actions" slot="end">
-                <ion-badge class="recent-badge" [color]="getStatusColor(req.status)">
-                  {{ statusLabel(req.status) }}
-                </ion-badge>
-                <ion-button
-                  type="button"
-                  size="small"
-                  fill="clear"
-                  class="recent-view"
-                  (click)="goToDetail(req, $event); $event.stopPropagation()"
-                >
-                  View
-                </ion-button>
-              </div>
-            </ion-item>
-          </ion-list>
-        </ion-card>
+        <h2 id="recent-heading" class="dashboard-section-title">Recent requests</h2>
+        <ion-list *ngIf="recentBookings.length; else noRecent" class="recent-list" lines="full">
+          <ion-item
+            *ngFor="let req of recentBookings; trackBy: trackByBookingId"
+            class="recent-item"
+            button
+            detail="true"
+            (click)="goToDetail(req, $event)"
+          >
+            <ion-label class="recent-label">
+              <h3>#{{ req.id }} · {{ serviceLine(req) }}</h3>
+              <p>{{ requestSchedule(req) }}</p>
+            </ion-label>
+            <ion-badge slot="end" class="recent-badge" [color]="getStatusColor(req.status)">
+              {{ statusLabel(req.status) }}
+            </ion-badge>
+          </ion-item>
+        </ion-list>
         <ng-template #noRecent>
-          <ion-card class="dashboard-empty-card">
-            <ion-card-content>
-              <p *ngIf="!loadError" class="dashboard-empty">
-                No requests in the sample yet. Open <a routerLink="/requests">Requests</a> to load the queue.
-              </p>
-            </ion-card-content>
-          </ion-card>
+          <p *ngIf="!loadError" class="dashboard-empty">
+            No requests yet. Open <a routerLink="/requests">Requests</a> to load the queue.
+          </p>
         </ng-template>
       </section>
     </ng-container>
