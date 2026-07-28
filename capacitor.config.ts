@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.example.admindoitnow',
-  appName: 'admin-doitnow',
+  appId: 'com.doitnow.admin',
+  appName: 'doItnowAdmin',
   webDir: 'www',
   plugins: {
     GoogleAuth: {

@@ -3,7 +3,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://13.206.154.10:3000',
+  apiUrl: 'https://api.justdoitnow.in',
+  // apiUrl: 'http://localhost:3000',
   googleWebClientId: '298547120620-p9umkah0rn919s76vf0vhse8ntovr2qf.apps.googleusercontent.com',
   googleAndroidClientId: '298547120620-7oh64seh3mgi004lpgmss566a71og8ar.apps.googleusercontent.com',
   firebase: {
